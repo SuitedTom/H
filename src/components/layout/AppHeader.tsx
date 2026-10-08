@@ -37,6 +37,15 @@ export const ANIMATION_MODES: {
   tagline: string;
 }[] = [
   {
+    id: 'drunken',
+    label: 'Drunken Boxing / Zui Quan (480f Master)',
+    shortLabel: '🍶 Drunken Boxing',
+    presetPath: '/downloads/drunken_boxing_24fps.stknds',
+    fps: 24,
+    badge: '24 FPS · 480 Frames · 9 Sections',
+    tagline: 'Chaotic unstable body → razor-sharp technique contrast with 12 contact hits & 2D spins',
+  },
+  {
     id: 'basketball',
     label: 'Basketball Choreography (24f Master)',
     shortLabel: '🏀 Basketball',

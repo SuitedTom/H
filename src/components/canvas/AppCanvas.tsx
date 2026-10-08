@@ -36,6 +36,7 @@ interface AppCanvasProps {
   speedStrengthFrames: SpeedVsStrengthKeyframeSpec[];
   sneezeFrames: StickfigureKeyframeSpec[];
   superheroFrames: StickfigureKeyframeSpec[];
+  drunkenFrames?: any[];
   computedBounceFrames: any[];
   safeBasketballFrame: BasketballKeyframeSpec;
   safeStrollKickFrame: SitWalkKickKeyframeSpec;
@@ -73,6 +74,7 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
   speedStrengthFrames,
   sneezeFrames,
   superheroFrames,
+  drunkenFrames = [],
   computedBounceFrames,
   safeBasketballFrame,
   safeStrollKickFrame,
@@ -215,6 +217,156 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
         34
       );
       ctx.restore();
+    } else if (activeAnimationMode === 'drunken') {
+      const framesList = drunkenFrames.length > 0 ? drunkenFrames : [];
+      const safeIdx = currentFrame % Math.max(1, framesList.length);
+      const activeSpec = framesList[safeIdx];
+
+      if (activeSpec) {
+        ctx.save();
+        const targetSceneX = vcamFollow ? activeSpec.sceneX : 640;
+        const targetSceneY = vcamFollow ? activeSpec.sceneY : 510;
+
+        ctx.translate(w * 0.5, h * 0.5);
+        if (vcamFollow && activeSpec.camZoom) {
+          ctx.scale(activeSpec.camZoom, activeSpec.camZoom);
+        }
+        ctx.translate(-targetSceneX * scaleX, -targetSceneY * scaleY);
+
+        const groundSceneY = 755;
+        const groundCanvasY = groundSceneY * scaleY;
+
+        // Background sky
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, groundCanvasY);
+        if (activeSpec.isHitStop) {
+          bgGrad.addColorStop(0, '#FEF2F2');
+          bgGrad.addColorStop(1, '#FEE2E2');
+        } else if (activeSpec.comExitsBoS) {
+          bgGrad.addColorStop(0, '#FFFBEB');
+          bgGrad.addColorStop(1, '#FEF3C7');
+        } else {
+          bgGrad.addColorStop(0, '#F8FAFC');
+          bgGrad.addColorStop(1, '#F1F5F9');
+        }
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(-2400, -1600, w + 4800, groundCanvasY + 1600);
+
+        // Platform floor
+        const floorGrad = ctx.createLinearGradient(0, groundCanvasY, 0, groundCanvasY + 600 * scaleY);
+        floorGrad.addColorStop(0, '#E2E8F0');
+        floorGrad.addColorStop(0.12, '#EDF2F7');
+        floorGrad.addColorStop(1, '#CBD5E1');
+        ctx.fillStyle = floorGrad;
+        ctx.fillRect(-2400, groundCanvasY, w + 4800, 1600);
+
+        // Grid
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 1;
+        for (let gx = -400; gx < 2400; gx += 160) {
+          ctx.beginPath();
+          ctx.moveTo(gx * scaleX, -400);
+          ctx.lineTo(gx * scaleX, h + 400);
+          ctx.stroke();
+        }
+
+        // Ground plane
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-400 * scaleX, groundCanvasY);
+        ctx.lineTo(2400 * scaleX, groundCanvasY);
+        ctx.stroke();
+
+        // Draw 17-node stickfigure
+        const joints = computeForwardKinematics(activeSpec.sceneX, activeSpec.sceneY, activeSpec.worldAngles, 0.5);
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Draw segments
+        for (let i = 1; i < 17; i++) {
+          if (i === 13) continue;
+          const j = joints[i];
+          ctx.strokeStyle = activeSpec.isHitStop ? '#DC2626' : '#0F172A';
+          ctx.lineWidth = Math.max(2.5, j.thickness * 0.5 * scaleX);
+          ctx.beginPath();
+          ctx.moveTo(j.startX * scaleX, j.startY * scaleY);
+          ctx.lineTo(j.endX * scaleX, j.endY * scaleY);
+          ctx.stroke();
+        }
+
+        // Head
+        const headJ = joints[13];
+        const headCenterX = ((headJ.startX + headJ.endX) * 0.5) * scaleX;
+        const headCenterY = ((headJ.startY + headJ.endY) * 0.5) * scaleY;
+        const headRadius = (headJ.length * 0.25) * scaleX;
+
+        ctx.fillStyle = activeSpec.isHitStop ? '#DC2626' : '#0F172A';
+        ctx.beginPath();
+        ctx.arc(headCenterX, headCenterY, headRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Target Indicator on Hit-Stop Strike Contacts
+        if (activeSpec.isHitStop && activeSpec.hitStopTargetX && activeSpec.hitStopTargetY) {
+          const tx = activeSpec.hitStopTargetX * scaleX;
+          const ty = activeSpec.hitStopTargetY * scaleY;
+          ctx.strokeStyle = '#DC2626';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(tx, ty, 14 * scaleX, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = '#DC2626';
+          ctx.font = '700 12px "IBM Plex Mono", monospace';
+          ctx.fillText(`⚡ HIT-STOP: ${activeSpec.strikeName ?? 'Strike'}`, tx + 20, ty - 10);
+        }
+
+        // Base of Support and Center of Mass Overlay
+        if (showKinematicsCoM && activeSpec.comX !== undefined) {
+          ctx.strokeStyle = activeSpec.comExitsBoS ? '#D97706' : '#10B981';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(activeSpec.supportMinX * scaleX, groundCanvasY);
+          ctx.lineTo(activeSpec.supportMaxX * scaleX, groundCanvasY);
+          ctx.stroke();
+
+          ctx.fillStyle = activeSpec.comExitsBoS ? '#D97706' : '#10B981';
+          ctx.beginPath();
+          ctx.arc(activeSpec.comX * scaleX, activeSpec.comY * scaleY, 5 * scaleX, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+        ctx.restore();
+
+        // Canvas HUD Banner
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.strokeStyle = '#CBD5E1';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.rect(12, 12, 480, 44);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '600 11px "IBM Plex Mono", monospace';
+        ctx.fillStyle = activeSpec.isHitStop ? '#DC2626' : '#0F172A';
+        ctx.fillText(
+          `F${activeSpec.frame}/479 · ${activeSpec.sectionName} ${
+            activeSpec.isHitStop ? `[STRIKE: ${activeSpec.strikeName}]` : activeSpec.comExitsBoS ? '[NEAR-FALL STUMBLE]' : '[CONTROLLED BALANCE]'
+          }`,
+          22,
+          30
+        );
+        ctx.font = '500 10px "IBM Plex Mono", monospace';
+        ctx.fillStyle = '#475569';
+        ctx.fillText(
+          `CoM: (${activeSpec.comX.toFixed(0)}, ${activeSpec.comY.toFixed(0)}) | Margin: ${activeSpec.comMarginPx.toFixed(1)}px | Root: (${activeSpec.sceneX.toFixed(0)}, ${activeSpec.sceneY.toFixed(0)})`,
+          22,
+          46
+        );
+        ctx.restore();
+      }
     } else if (activeAnimationMode === 'basketball') {
       const safeIdx = currentFrame % basketballFrames.length;
       const activeSpec = basketballFrames[safeIdx];

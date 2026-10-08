@@ -54,6 +54,7 @@ export interface AnimationStudioStageProps {
   speedStrengthFrames: any[];
   sneezeFrames: any[];
   superheroFrames: any[];
+  drunkenFrames?: any[];
   computedBounceFrames: any[];
   safeBasketballFrame: any;
   safeStrollKickFrame: any;
@@ -99,6 +100,7 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
   speedStrengthFrames,
   sneezeFrames,
   superheroFrames,
+  drunkenFrames = [],
   computedBounceFrames,
   safeBasketballFrame,
   safeStrollKickFrame,
@@ -170,6 +172,10 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
 
   // Determine active phase/act badge title for stage HUD
   const activePhaseTitle = (() => {
+    if (activeAnimationMode === 'drunken' && drunkenFrames.length > 0) {
+      const f = drunkenFrames[currentFrame % drunkenFrames.length];
+      return `${f.sectionName} · Frame ${currentFrame}`;
+    }
     if (activeAnimationMode === 'basketball' && safeBasketballFrame) {
       return `Phase ${safeBasketballFrame.phaseIndex}: ${safeBasketballFrame.phaseName} · ${safeBasketballFrame.ballState}`;
     }
@@ -314,6 +320,7 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
           speedStrengthFrames={speedStrengthFrames}
           sneezeFrames={sneezeFrames}
           superheroFrames={superheroFrames}
+        drunkenFrames={drunkenFrames}
           computedBounceFrames={computedBounceFrames}
           safeBasketballFrame={safeBasketballFrame}
           safeStrollKickFrame={safeStrollKickFrame}
@@ -430,6 +437,36 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
             ref={ribbonScrollRef}
             className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar scroll-smooth"
           >
+            {activeAnimationMode === 'drunken' &&
+              [
+                { label: '1. Barely Standing', frame: 0 },
+                { label: '2. Spin Backhand', frame: 48 },
+                { label: '3. Low Sweep', frame: 96 },
+                { label: '4. Spin Back Kick', frame: 144 },
+                { label: '5. Lean & Hook', frame: 204 },
+                { label: '6. Spin Combo', frame: 264 },
+                { label: '7. Collapse & Pounce', frame: 336 },
+                { label: '8. Perfect Form', frame: 396 },
+                { label: '9. Barely Standing (Loop)', frame: 456 },
+              ].map((jump) => (
+                <button
+                  key={jump.label}
+                  type="button"
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setCurrentFrame(jump.frame);
+                  }}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer ${
+                    currentFrame >= jump.frame && currentFrame < jump.frame + 40
+                      ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  <div className="text-[10px] font-mono opacity-75">F{jump.frame.toString().padStart(3, '0')}</div>
+                  <div className="font-semibold text-[11px] whitespace-nowrap">{jump.label}</div>
+                </button>
+              ))}
+
             {activeAnimationMode === 'basketball' &&
               BASKETBALL_24_TIMELINE.map((t: any) => {
                 const isActive = (safeBasketballFrame?.frame ?? currentFrame) === t.frame;

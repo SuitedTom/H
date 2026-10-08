@@ -42,6 +42,11 @@ import {
 } from './lib/basketballChoreographyFrames';
 
 import {
+  buildCanonicalDrunkenBoxingFrames,
+  synthesizeDrunkenBoxingStknds,
+} from './lib/drunkenBoxing';
+
+import {
   type SitWalkKickGeneratorConfig,
   buildCanonicalSitWalkKickFrames,
   buildAdjustedSitWalkKickFrames,
@@ -62,8 +67,8 @@ import { EngineeringSuite } from './components/workspace/EngineeringSuite';
 
 export function App() {
   const [activeAnimationMode, setActiveAnimationMode] = useState<
-    'basketball' | 'stroll-kick' | 'phantom' | 'teleport' | 'sneeze' | 'superhero' | 'bounce' | 'speed-strength'
-  >('basketball');
+    'drunken' | 'basketball' | 'stroll-kick' | 'phantom' | 'teleport' | 'sneeze' | 'superhero' | 'bounce' | 'speed-strength'
+  >('drunken');
 
   const [globalFps, setGlobalFps] = useState<12 | 24>(24);
 
@@ -170,7 +175,7 @@ export function App() {
   const [baseTemplate27, setBaseTemplate27] = useState<Uint8Array | null>(null);
   const [activeInspection, setActiveInspection] = useState<StkndsInspectionResult | null>(null);
   const [selectedPresetPath, setSelectedPresetPath] = useState<string>(
-    '/downloads/basketball_walk_pickup_dribble_24f.stknds'
+    '/downloads/drunken_boxing_24fps.stknds'
   );
   const [inspectLoading, setInspectLoading] = useState<boolean>(true);
   const [inspectError, setInspectError] = useState<string | null>(null);
@@ -254,7 +259,9 @@ export function App() {
 
   const syncAnimationModeFromPath = useCallback((pathOrName: string) => {
     const lower = pathOrName.toLowerCase();
-    if (lower.includes('basketball')) {
+    if (lower.includes('drunken') || lower.includes('zui_quan')) {
+      setActiveAnimationMode('drunken');
+    } else if (lower.includes('basketball')) {
       setActiveAnimationMode('basketball');
     } else if (lower.includes('sit_stand') || lower.includes('stroll')) {
       setActiveAnimationMode('stroll-kick');
@@ -292,6 +299,11 @@ export function App() {
   useEffect(() => {
     inspectPreset(selectedPresetPath, selectedPresetPath.split('/').pop() || 'preset.stknds');
   }, [selectedPresetPath, inspectPreset]);
+
+  const drunkenFrames = useMemo(
+    () => buildCanonicalDrunkenBoxingFrames({ targetFps: globalFps }),
+    [globalFps]
+  );
 
   const basketballFrames = useMemo(
     () => buildCanonicalBasketballFrames(basketballConfig),
@@ -358,6 +370,8 @@ export function App() {
   const totalModeFrames =
     binaryStageOverride && activeInspection && activeInspection.frames.length > 0
       ? activeInspection.frames.length
+      : activeAnimationMode === 'drunken'
+      ? drunkenFrames.length
       : activeAnimationMode === 'basketball'
       ? basketballFrames.length
       : activeAnimationMode === 'stroll-kick'
@@ -392,7 +406,10 @@ export function App() {
       let bytes: Uint8Array | null = null;
       let filename = 'animation.stknds';
 
-      if (activeAnimationMode === 'basketball') {
+      if (activeAnimationMode === 'drunken') {
+        filename = `drunken_boxing_${globalFps}fps.stknds`;
+        bytes = await synthesizeDrunkenBoxingStknds(drunkenFrames, { targetFps: globalFps });
+      } else if (activeAnimationMode === 'basketball') {
         if (!baseTemplate27) return;
         filename = `${basketballConfig.projectName}_${globalFps}f.stknds`;
         bytes = await synthesizeBasketballStknds(baseTemplate27, basketballConfig);
@@ -649,6 +666,7 @@ export function App() {
               speedStrengthFrames={speedStrengthFrames}
               sneezeFrames={sneezeFrames}
               superheroFrames={superheroFrames}
+              drunkenFrames={drunkenFrames}
               computedBounceFrames={computedBounceFrames}
               safeBasketballFrame={safeBasketballFrame}
               safeStrollKickFrame={safeStrollKickFrame}
