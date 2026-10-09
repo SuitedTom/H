@@ -57,9 +57,47 @@ const leftWalk = makeWalk({ direction: 'left', startX: 600 });
 assert.ok(leftWalk.frames[leftWalk.frames.length - 1].rootX < leftWalk.frames[0].rootX);
 assert.ok(leftWalk.frames.every((frame) => frame.angles.length === 17));
 
+// Run mode reuses the same gait solver with faster cadence, greater clearance,
+// a smooth acceleration ramp, pelvis bob, and existing balance recommendations.
+const run = generateContactAwareLocomotion({
+  frameCount: 40,
+  mode: 'run',
+  accelerationFrames: 8,
+  decelerationFrames: 8,
+  startX: 200,
+  groundY: 500,
+});
+assert.equal(run.frames.length, 40);
+assert.ok(run.frames.every((frame) => frame.angles.length === 17));
+assert.ok(run.frames.every((frame) => Number.isFinite(frame.rootVelocityX)));
+assert.ok(run.frames.every((frame) => Number.isFinite(frame.rootAccelerationX)));
+assert.ok(run.frames.every((frame) => Number.isFinite(frame.balance.stabilityMargin)));
+assert.ok(run.frames.every((frame) => Number.isFinite(frame.balance.centerOfMass.x)));
+assert.ok(run.frames.some((frame) => Math.abs(frame.balance.appliedCounterLeanDeg) > 0));
+assert.ok(run.report.balanceRecoveryFrames >= 0);
+assert.ok(Number.isFinite(run.report.minimumStabilityMarginPx));
+assert.ok(run.frames[2].rootVelocityX > run.frames[1].rootVelocityX,
+  `expected acceleration ramp: ${run.frames[1].rootVelocityX}, ${run.frames[2].rootVelocityX}`);
+assert.ok(run.frames.some((frame, index) => index > 0 && frame.rootY !== run.frames[index - 1].rootY),
+  'pelvis bob should change root height over the gait cycle');
+
+const constantSpeed = generateContactAwareLocomotion({
+  frameCount: 8,
+  cycleFrames: 8,
+  strideLengthPx: 40,
+  accelerationProfile: 'constant',
+  accelerationFrames: 0,
+  pelvisBobPx: 0,
+  balanceRecovery: false,
+});
+assert.ok(constantSpeed.frames.every((frame) => frame.rootY === constantSpeed.frames[0].rootY));
+assert.ok(Math.abs(constantSpeed.frames[4].rootVelocityX - constantSpeed.frames[3].rootVelocityX) < 1e-8);
+
 assert.throws(() => generateContactAwareLocomotion({ frameCount: 0 }), /frameCount/);
 assert.throws(() => generateContactAwareLocomotion({ frameCount: 10, cycleFrames: 2 }), /cycleFrames/);
 assert.throws(() => generateContactAwareLocomotion({ frameCount: 10, stanceFraction: 1 }), /stanceFraction/);
 assert.throws(() => generateContactAwareLocomotion({ frameCount: 10, baseAngles: [1, 2] }), /baseAngles/);
+assert.throws(() => generateContactAwareLocomotion({ frameCount: 10, accelerationFrames: -1 }), /frame counts/);
+assert.throws(() => generateContactAwareLocomotion({ frameCount: 10, balanceCorrectionStrength: 2 }), /balance correction strength/);
 
-console.log('Contact-aware locomotion tests passed: gait phases, 17-joint poses, stance targets, ground clearance, planted-foot drift, direction, and invalid options.');
+console.log('Contact-aware locomotion tests passed: walk/run phases, stance targets, IK, acceleration/deceleration, pelvis bob, balance integration, direction, and invalid options.');
