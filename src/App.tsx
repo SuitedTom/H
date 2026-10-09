@@ -77,6 +77,11 @@ import {
 
 import { IK_STUDIO_GROUND_Y, MASTER_CANVAS_GROUND_Y } from './lib/physics/groundPerimeterSystem';
 
+import {
+  type ReferenceReconstructionGeneratorConfig,
+  buildAdjustedReferenceReconstructionFrames,
+  synthesizeReferenceReconstructionStknds,
+} from './lib/referenceReconstruction/referenceReconstructionGenerator';
 import { AppHeader } from './components/layout/AppHeader';
 import { AnimationStudioStage } from './components/workspace/AnimationStudioStage';
 import { StudioInspectorPanel } from './components/panels/StudioInspectorPanel';
@@ -84,8 +89,8 @@ import { EngineeringSuite } from './components/workspace/EngineeringSuite';
 
 export function App() {
   const [activeAnimationMode, setActiveAnimationMode] = useState<
-    'combat' | 'parkour' | 'basketball' | 'stroll-kick' | 'phantom' | 'teleport' | 'sneeze' | 'superhero' | 'bounce' | 'speed-strength'
-  >('combat');
+    'combat' | 'parkour' | 'basketball' | 'stroll-kick' | 'phantom' | 'teleport' | 'sneeze' | 'superhero' | 'bounce' | 'speed-strength' | 'reference-reconstruction'
+  >('reference-reconstruction');
 
   const [globalFps, setGlobalFps] = useState<12 | 24>(24);
 
@@ -183,6 +188,13 @@ export function App() {
     headColorHex: '#0284C7',
   });
 
+  const [refRecConfig, setRefRecConfig] = useState<ReferenceReconstructionGeneratorConfig>({
+    projectName: '115_frame_reference_reconstruction',
+    targetFps: 25,
+    primaryColorHex: '#0F172A',
+    accentColorHex: '#EA580C',
+    enableOverlayFx: true,
+  });
   const [bounceConfig, setBounceConfig] = useState<BounceGeneratorConfig>({
     projectName: 'ball_bounce_forge',
     targetFps: 12,
@@ -318,6 +330,8 @@ export function App() {
       setActiveAnimationMode('sneeze');
     } else if (lower.includes('superhero') || lower.includes('fly') || lower.includes('propelled')) {
       setActiveAnimationMode('superhero');
+    } else if (lower.includes('reference') || lower.includes('115')) {
+      setActiveAnimationMode('reference-reconstruction');
     } else if (lower.includes('bounce') || lower.includes('project6')) {
       setActiveAnimationMode('bounce');
     }
@@ -415,6 +429,11 @@ export function App() {
     [globalFps, heroConfig]
   );
 
+  const referenceReconstructionFrames = useMemo(
+    () => buildAdjustedReferenceReconstructionFrames(refRecConfig),
+    [refRecConfig]
+  );
+
   const liveBiomechanicsAudit = useMemo(
     () =>
       activeAnimationMode === 'teleport'
@@ -453,7 +472,7 @@ export function App() {
       ? sneezeFrames.length
       : activeAnimationMode === 'superhero'
       ? superheroFrames.length
-      : computedBounceFrames.length;
+      : activeAnimationMode === 'reference-reconstruction' ? referenceReconstructionFrames.length : computedBounceFrames.length;
 
   const effectivePlaybackFps = globalFps;
 
@@ -768,6 +787,9 @@ export function App() {
               safeSpeedStrengthFrame={safeSpeedStrengthFrame}
               safeHeroFrame={safeHeroFrame}
               safeBounceFrame={safeBounceFrame}
+              refRecConfig={refRecConfig}
+              referenceReconstructionFrames={referenceReconstructionFrames}
+              safeReferenceReconstructionFrame={referenceReconstructionFrames[currentFrame % referenceReconstructionFrames.length]}
             />
           )}
 

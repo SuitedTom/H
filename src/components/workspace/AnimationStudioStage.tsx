@@ -55,6 +55,9 @@ export interface AnimationStudioStageProps {
   sneezeConfig: any;
   heroConfig: any;
   bounceConfig: any;
+  refRecConfig?: any;
+  referenceReconstructionFrames?: any[];
+  safeReferenceReconstructionFrame?: any;
   basketballFrames: any[];
   strollKickFrames: any[];
   phantomFrames: any[];
@@ -121,6 +124,9 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
   safeSpeedStrengthFrame,
   safeHeroFrame,
   safeBounceFrame,
+  refRecConfig,
+  referenceReconstructionFrames = [],
+  safeReferenceReconstructionFrame,
 }) => {
   const ribbonScrollRef = useRef<HTMLDivElement | null>(null);
   const stageContainerRef = useRef<HTMLDivElement | null>(null);
@@ -345,6 +351,9 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
           safeSpeedStrengthFrame={safeSpeedStrengthFrame}
           safeHeroFrame={safeHeroFrame}
           safeBounceFrame={safeBounceFrame}
+        refRecConfig={refRecConfig}
+        referenceReconstructionFrames={referenceReconstructionFrames}
+        safeReferenceReconstructionFrame={safeReferenceReconstructionFrame}
           binaryStageOverride={binaryStageOverride}
           activeInspection={activeInspection}
         />

@@ -37,6 +37,9 @@ interface AppCanvasProps {
   sneezeConfig: EpicSneezeGeneratorConfig;
   heroConfig: SuperheroGeneratorConfig;
   bounceConfig: BounceGeneratorConfig;
+  refRecConfig?: any;
+  referenceReconstructionFrames?: any[];
+  safeReferenceReconstructionFrame?: any;
   basketballFrames: BasketballKeyframeSpec[];
   strollKickFrames: SitWalkKickKeyframeSpec[];
   phantomFrames: PhantomShadowboxKeyframeSpec[];
@@ -95,6 +98,9 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
   safeSpeedStrengthFrame,
   safeHeroFrame,
   safeBounceFrame,
+  refRecConfig,
+  referenceReconstructionFrames = [],
+  safeReferenceReconstructionFrame,
 }) => {
   const internalCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [resizeTrigger, setResizeTrigger] = useState(0);
@@ -2692,6 +2698,121 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
         drawSneezePose(prevIdx, 0.2, true);
       }
       drawSneezePose(safeIdx, 1.0, false);
+
+      ctx.restore();
+
+    } else if (activeAnimationMode === 'reference-reconstruction' && referenceReconstructionFrames.length > 0) {
+      const safeIdx = currentFrame % referenceReconstructionFrames.length;
+      const spec = safeReferenceReconstructionFrame || referenceReconstructionFrames[safeIdx];
+
+      ctx.save();
+      const groundSceneY = 755;
+      const groundCanvasY = groundSceneY * scaleY;
+
+      // Studio Backdrop & Floor
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, groundCanvasY);
+      skyGrad.addColorStop(0, '#F8FAFC');
+      skyGrad.addColorStop(1, '#F1F5F9');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(-2400, -1600, w + 4800, groundCanvasY + 1600);
+
+      const floorGrad = ctx.createLinearGradient(0, groundCanvasY, 0, groundCanvasY + 600 * scaleY);
+      floorGrad.addColorStop(0, '#E2E8F0');
+      floorGrad.addColorStop(0.12, '#EDF2F7');
+      floorGrad.addColorStop(1, '#CBD5E1');
+      ctx.fillStyle = floorGrad;
+      ctx.fillRect(-2400, groundCanvasY, w + 4800, 1600);
+
+      // Grid line ground plane
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-2400, groundCanvasY);
+      ctx.lineTo(w + 4800, groundCanvasY);
+      ctx.stroke();
+
+      // Function to render stickfigure pose
+      const drawReconstructedPose = (fSpec: any, alpha: number, isOnion: boolean) => {
+        if (!fSpec) return;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        const joints = computeForwardKinematics(
+          fSpec.charX,
+          fSpec.charY,
+          fSpec.worldAngles,
+          0.5
+        );
+
+        // Draw stickfigure bones
+        STICKFIGURE_PARENTS.forEach((parentIdx, childIdx) => {
+          if (childIdx === 0) return;
+          const p1 = joints[parentIdx];
+          const p2 = joints[childIdx];
+          if (p1 && p2) {
+            ctx.strokeStyle = isOnion ? '#94A3B8' : '#0F172A';
+            ctx.lineWidth = 6 * scaleX;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(p1.startX * scaleX, p1.startY * scaleY);
+            ctx.lineTo(p2.startX * scaleX, p2.startY * scaleY);
+            ctx.stroke();
+          }
+        });
+
+        // Head node
+        const head = joints[0];
+        if (head) {
+          ctx.fillStyle = isOnion ? '#94A3B8' : '#0F172A';
+          ctx.beginPath();
+          ctx.arc(head.startX * scaleX, head.startY * scaleY, 12 * scaleX, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Secondary / Target Figure if active
+        if (fSpec.targetActive && fSpec.targetAngles) {
+          const tJoints = computeForwardKinematics(
+            fSpec.targetX,
+            fSpec.targetY,
+            fSpec.targetAngles,
+            0.5
+          );
+          STICKFIGURE_PARENTS.forEach((parentIdx, childIdx) => {
+            if (childIdx === 0) return;
+            const p1 = tJoints[parentIdx];
+            const p2 = tJoints[childIdx];
+            if (p1 && p2) {
+              ctx.strokeStyle = isOnion ? '#CBD5E1' : '#334155';
+              ctx.lineWidth = 5 * scaleX;
+              ctx.lineCap = 'round';
+              ctx.beginPath();
+              ctx.moveTo(p1.startX * scaleX, p1.startY * scaleY);
+              ctx.lineTo(p2.startX * scaleX, p2.startY * scaleY);
+              ctx.stroke();
+            }
+          });
+        }
+
+        // Prop / FX / Orb
+        if (fSpec.propActive) {
+          ctx.save();
+          ctx.fillStyle = fSpec.propColorHex || '#EA580C';
+          ctx.shadowColor = fSpec.propColorHex || '#EA580C';
+          ctx.shadowBlur = isOnion ? 0 : 15;
+          ctx.beginPath();
+          ctx.arc(fSpec.propX * scaleX, fSpec.propY * scaleY, (fSpec.propRadius || 18) * scaleX, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        ctx.restore();
+      };
+
+      if (showOnionSkin) {
+        const prevIdx = (safeIdx - 1 + referenceReconstructionFrames.length) % referenceReconstructionFrames.length;
+        drawReconstructedPose(referenceReconstructionFrames[prevIdx], 0.25, true);
+      }
+      drawReconstructedPose(spec, 1.0, false);
 
       ctx.restore();
     } else if (activeAnimationMode === 'superhero') {
