@@ -25,6 +25,8 @@ on:
       - 'src/lib/skills/kinematicsSolvers.ts'
       - 'src/lib/stknds/stickfigureStructure.ts'
       - 'scripts/test-motion-core.ts'
+      - 'scripts/test-contact-aware-locomotion.ts'
+      - 'scripts/test-pose-presets.ts'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/motion-core.yml'
