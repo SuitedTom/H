@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "name": "Stick Nodes Animation Forge - Unified Physical Configuration",
+  "version": "1.0.0",
+  "environment": {
+    "defaultGroundY": 755.0,
+    "gravityPxPerSec2": 980.0,
+    "groundFriction": 0.70,
+    "restitution": 0.60,
+    "airResistance": 0.05
+  },
+  "timing": {
+    "standardFps": 24,
+    "cinematicFps": 12,
+    "defaultTweenValue": 5,
+    "animateOnTwos": false
+  },
+  "locomotion": {
+    "walkStrideLengthPx": 75.0,
+    "walkStepDurationSec": 0.5,
+    "pelvisWaveDipPx": 8.0,
+    "runStrideLengthPx": 130.0,
+    "jumpApexHeightPx": 165.0,
+    "landingCompressionDipPx": 18.0,
+    "torsoForwardLeanDeg": 12.0
+  },
+  "bounce": {
+    "ballDiameter": 160.0,
+    "ballThickness": 80.0,
+    "primaryApexHeight": 260.0,
+    "secondaryApexHeight": 176.0,
+    "squashFactor": 1.0
+  },
+  "tolerances": {
+    "contactThresholdPx": 14.0,
+    "strictContactThresholdPx": 12.0,
+    "warningContactThresholdPx": 18.0,
+    "maxStanceFootSlipPx": 1.0,
+    "maxGroundElevationErrorPx": 2.0,
+    "maxRootTeleportStepPx": 45.0,
+    "maxJointAngularStepDeg": 35.0,
+    "maxBoneLengthDriftPx": 0.1,
+    "hitStopFreezeFrames": 2,
+    "recoilSlideDistancePx": 6.0,
+    "balanceMarginThresholdPx": 25.0
+  },
+  "skeleton": {
+    "nodeCount": 17,
+    "defaultScale": 0.5,
+    "parents": [-1, 0, 1, 2, 0, 4, 5, 0, 7, 8, 9, 10, 8, 12, 8, 14, 15],
+    "boneLengths": [
+      0.0, 255.0, 245.0, 53.5, 255.0, 245.0, 53.5, 107.7, 99.4, 147.5, 177.8, 16.2,
+      24.0, 155.0, 152.0, 178.0, 16.2
+    ],
+    "boneThickness": [
+      32, 60, 60, 48, 60, 60, 48, 62, 60, 60, 60, 47, 18, 2, 60, 60, 47
+    ],
+    "boneNames": [
+      "Pelvis (Root)",
+      "Right Thigh",
+      "Right Shin",
+      "Right Foot",
+      "Left Thigh",
+      "Left Shin",
+      "Left Foot",
+      "Lower Spine",
+      "Upper Chest",
+      "Right Bicep",
+      "Right Forearm",
+      "Right Hand",
+      "Neck",
+      "Head",
+      "Left Bicep",
+      "Left Forearm",
+      "Left Hand"
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "title": "Natural Walk Cycle Across Ground",
+  "fps": 24,
+  "totalFrames": 48,
+  "groundY": 755.0,
+  "characters": [
+    {
+      "id": "walker",
+      "name": "Stick Walker",
+      "scale": 0.5,
+      "colorHex": "#0F172A",
+      "keyframes": [
+        {
+          "frame": 0,
+          "intent": "Contact heel strike (Right lead)",
+          "root": { "x": 200, "y": 510, "facing": "right" },
+          "preset": "walk_contact_r",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 235 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 12,
+          "intent": "Passing phase (Right support, Left swing)",
+          "root": { "x": 255, "y": 504, "facing": "right" },
+          "preset": "walk_passing_r",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 235 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 24,
+          "intent": "Contact heel strike (Left lead, Right push-off)",
+          "root": { "x": 310, "y": 510, "facing": "right" },
+          "preset": "walk_contact_l",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 235 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 345 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 36,
+          "intent": "Passing phase (Left support, Right swing)",
+          "root": { "x": 365, "y": 504, "facing": "right" },
+          "preset": "walk_passing_l",
+          "contacts": {
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 345 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 47,
+          "intent": "Settle into balanced stand",
+          "root": { "x": 420, "y": 510, "facing": "right" },
+          "preset": "stand_neutral",
+          "contacts": {
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 345 },
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 435 }
+          },
+          "easing": "easeOutQuad"
+        }
+      ]
+    }
+  ]
+}

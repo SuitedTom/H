@@ -1,0 +1,172 @@
+{
+  "title": "Two-Character Combat Clash",
+  "fps": 24,
+  "totalFrames": 36,
+  "groundY": 755.0,
+  "characters": [
+    {
+      "id": "attacker",
+      "name": "Red Fighter",
+      "scale": 0.5,
+      "colorHex": "#DC2626",
+      "keyframes": [
+        {
+          "frame": 0,
+          "intent": "Combat guard stance",
+          "root": { "x": 420, "y": 510, "facing": "right" },
+          "preset": "combat_guard",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 450, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 380, "y": 755.0 }
+          },
+          "easing": "easeInQuad"
+        },
+        {
+          "frame": 8,
+          "intent": "Preload rear leg & wind up punch",
+          "root": { "x": 430, "y": 512, "facing": "right" },
+          "preset": "combat_guard",
+          "adjustments": {
+            "torsoLeanDeg": -6
+          },
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 450, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 380, "y": 755.0 }
+          },
+          "easing": "anticipation"
+        },
+        {
+          "frame": 16,
+          "intent": "Kinetic strike drive to defender block",
+          "root": { "x": 500, "y": 515, "facing": "right" },
+          "preset": "strike_punch_extend",
+          "adjustments": {
+            "reachTarget": {
+              "arm": "right",
+              "x": 585,
+              "y": 435
+            }
+          },
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 530, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 380, "y": 755.0 }
+          },
+          "easing": "easeOutQuad"
+        },
+        {
+          "frame": 19,
+          "intent": "Hit-stop impact freeze hold",
+          "root": { "x": 500, "y": 515, "facing": "right" },
+          "preset": "strike_punch_extend",
+          "adjustments": {
+            "reachTarget": {
+              "arm": "right",
+              "x": 585,
+              "y": 435
+            }
+          },
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 530, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 380, "y": 755.0 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 26,
+          "intent": "Post-impact recoil and fist retraction",
+          "root": { "x": 480, "y": 512, "facing": "right" },
+          "preset": "combat_guard",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 530, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 380, "y": 755.0 }
+          },
+          "easing": "easeOutQuad"
+        },
+        {
+          "frame": 35,
+          "intent": "Return to braced combat guard",
+          "root": { "x": 450, "y": 510, "facing": "right" },
+          "preset": "combat_guard",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 480, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 380, "y": 755.0 }
+          },
+          "easing": "settle"
+        }
+      ]
+    },
+    {
+      "id": "defender",
+      "name": "Blue Defender",
+      "scale": 0.5,
+      "colorHex": "#2563EB",
+      "keyframes": [
+        {
+          "frame": 0,
+          "intent": "Standoff guard stance",
+          "root": { "x": 640, "y": 510, "facing": "left" },
+          "preset": "combat_guard",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 610, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 670, "y": 755.0 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 16,
+          "intent": "Forearm shield block clash at chest height",
+          "root": { "x": 635, "y": 510, "facing": "left" },
+          "preset": "defend_block",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 605, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 670, "y": 755.0 }
+          },
+          "easing": "easeOutQuad"
+        },
+        {
+          "frame": 19,
+          "intent": "Hit-stop shock absorption hold",
+          "root": { "x": 635, "y": 510, "facing": "left" },
+          "preset": "defend_block",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 605, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 670, "y": 755.0 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 26,
+          "intent": "Impact recoil displacement",
+          "root": { "x": 665, "y": 512, "facing": "left" },
+          "preset": "defend_recoil",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 635, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 700, "y": 755.0 }
+          },
+          "easing": "settle"
+        },
+        {
+          "frame": 35,
+          "intent": "Braced recovery guard",
+          "root": { "x": 665, "y": 510, "facing": "left" },
+          "preset": "combat_guard",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "x": 635, "y": 755.0 },
+            "leftFoot": { "state": "PLANT", "x": 700, "y": 755.0 }
+          },
+          "easing": "easeOutQuad"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "frame": 16,
+      "type": "STRIKE_IMPACT",
+      "attackerId": "attacker",
+      "defenderId": "defender",
+      "hitStopFrames": 3,
+      "recoilDistancePx": 30.0
+    }
+  ]
+}

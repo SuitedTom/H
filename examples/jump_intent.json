@@ -1,0 +1,89 @@
+{
+  "title": "Athletic Jump & Land Sequence",
+  "fps": 24,
+  "totalFrames": 47,
+  "groundY": 755.0,
+  "characters": [
+    {
+      "id": "jumper",
+      "name": "Stick Jumper",
+      "scale": 0.5,
+      "colorHex": "#0284C7",
+      "keyframes": [
+        {
+          "frame": 0,
+          "intent": "Neutral upright preparation",
+          "root": { "x": 300, "y": 510, "facing": "right" },
+          "preset": "stand_neutral",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 315 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 285 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 8,
+          "intent": "Anticipation crouch loading leg spring",
+          "root": { "x": 305, "y": 560, "facing": "right" },
+          "preset": "jump_crouch",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 315 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 285 }
+          },
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 13,
+          "intent": "Takeoff explosive extension toe-off",
+          "root": { "x": 315, "y": 510, "facing": "right" },
+          "preset": "stand_neutral",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 315 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 285 }
+          },
+          "easing": "easeOutQuad"
+        },
+        {
+          "frame": 23,
+          "intent": "Ballistic flight apex",
+          "root": { "x": 420, "y": 385, "facing": "right" },
+          "preset": "jump_apex",
+          "easing": "easeInOutQuad"
+        },
+        {
+          "frame": 33,
+          "intent": "Touchdown landing contact",
+          "root": { "x": 510, "y": 510, "facing": "right" },
+          "preset": "stand_neutral",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 525 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 495 }
+          },
+          "easing": "easeInQuad"
+        },
+        {
+          "frame": 39,
+          "intent": "Landing absorption compression dip",
+          "root": { "x": 515, "y": 560, "facing": "right" },
+          "preset": "jump_landing",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 525 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 495 }
+          },
+          "easing": "easeOutQuad"
+        },
+        {
+          "frame": 46,
+          "intent": "Upright standing recovery",
+          "root": { "x": 520, "y": 510, "facing": "right" },
+          "preset": "stand_neutral",
+          "contacts": {
+            "rightFoot": { "state": "PLANT", "y": 755.0, "x": 525 },
+            "leftFoot": { "state": "PLANT", "y": 755.0, "x": 495 }
+          },
+          "easing": "easeOutQuad"
+        }
+      ]
+    }
+  ]
+}

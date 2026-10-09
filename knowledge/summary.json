@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "name": "Stick Nodes Animation Forge - Biomechanical Knowledge Base Summary",
+  "version": "1.0.0",
+  "provenance": {
+    "totalResearchTopics": 12,
+    "primaryScientificSources": [
+      "David A. Winter (Biomechanics and Motor Control of Human Movement)",
+      "Jacquelin Perry & Judith M. Burnfield (Gait Analysis)",
+      "AAOS Joint Motion Standards",
+      "W. T. Dempster (Segmental Mass Distribution)",
+      "Richard Williams (The Animator's Survival Kit)",
+      "Ralph Damiano (Stick Nodes Engine Specification)"
+    ]
+  },
+  "skeletalConstraints": {
+    "knee": {
+      "minFlexionDeg": 0.0,
+      "maxFlexionDeg": 155.0,
+      "maxHyperextensionDeg": 0.0,
+      "polarity": "posterior_only"
+    },
+    "elbow": {
+      "minFlexionDeg": 0.0,
+      "maxFlexionDeg": 150.0,
+      "maxHyperextensionDeg": 0.0,
+      "polarity": "anterior_only"
+    },
+    "hip": {
+      "maxSagittalFlexionDeg": 125.0,
+      "maxSagittalExtensionDeg": -20.0
+    },
+    "shoulder": {
+      "maxSagittalFlexionDeg": 180.0,
+      "maxSagittalExtensionDeg": -60.0
+    },
+    "ankle": {
+      "maxDorsiflexionDeg": 20.0,
+      "maxPlantarflexionDeg": 50.0
+    },
+    "spine": {
+      "maxSegmentDifferentialDeg": 35.0
+    }
+  },
+  "locomotionGait": {
+    "walk": {
+      "cadenceNormalFps24": 24,
+      "cadenceSlowFps24": 32,
+      "cadenceBriskFps24": 16,
+      "stancePhaseRatio": 0.60,
+      "swingPhaseRatio": 0.40,
+      "verticalPelvicOscillationPx": 12.0,
+      "contralateralArmPhaseOffset": 0.5
+    },
+    "run": {
+      "cadenceNormalFps24": 14,
+      "cadenceSprintFps24": 10,
+      "stancePhaseRatio": 0.35,
+      "flightPhaseRatio": 0.35,
+      "forwardLeanDeg": 10.0,
+      "elbowBendDeg": 90.0,
+      "minFlightClearancePx": 25.0
+    }
+  },
+  "ballisticsAndJumping": {
+    "gravityPxPerSec2": 980.0,
+    "gravityPxPerFrame2At24Fps": 1.701,
+    "anticipationCrouchMinFrames": 6,
+    "landingCompressionMinPx": 25.0,
+    "landingSurfaceTolerancePx": 2.0
+  },
+  "massAndBalance": {
+    "massDistributionDempster": {
+      "headAndNeck": 0.081,
+      "trunkAndPelvis": 0.497,
+      "upperArms": 0.056,
+      "forearmsAndHands": 0.044,
+      "thighs": 0.200,
+      "shinsAndFeet": 0.122
+    },
+    "supportPolygonPaddingPx": 15.0
+  },
+  "kineticChainFollowThrough": {
+    "lagPerChainDepthFrames": 0.75,
+    "simultaneousStopMaxJointsRatio": 0.40,
+    "settleOvershootRatio": 0.15
+  },
+  "combatAndImpact": {
+    "hitStopDurationFrames": 3,
+    "maxStrikeReachThresholdPx": 18.0,
+    "recoilDecayRate": 0.45
+  },
+  "stickNodesTweening": {
+    "maxAngularStepPerKeyframeDeg": 45.0,
+    "containerOuterPrefixBytes": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "standardNodesCount": 17
+  },
+  "validationThresholds": {
+    "maxBoneLengthDriftPx": 0.1,
+    "maxStanceFootSlipPx": 1.0,
+    "maxGroundElevationErrorPx": 0.5,
+    "maxRootTeleportPxPerFrame": 45.0,
+    "maxJointAngularStepDeg": 35.0,
+    "strikeContactThresholdPx": 18.0,
+    "jumpLandingSurfaceTolerancePx": 2.0
+  }
+}
