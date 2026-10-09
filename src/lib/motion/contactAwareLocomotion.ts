@@ -139,7 +139,10 @@ function footTargetAtFrame(
     };
   }
 
-  const swingProgress = Math.max(0, Math.min(
+  // The cycle is sampled at integer frames, so phase never equals exactly 1.
+  // Snap the final sample to the landing endpoint to avoid a discontinuity at wrap.
+  const isLastSampleBeforeWrap = phase + 1 / options.cycleFrames >= 1 - 1e-9;
+  const swingProgress = isLastSampleBeforeWrap ? 1 : Math.max(0, Math.min(
     1,
     (phase - options.stanceFraction) / (1 - options.stanceFraction),
   ));
