@@ -1,13 +1,40 @@
 import { solveForwardKinematics17, solveTwoBoneIK } from '../skills/kinematicsSolvers';
 import { STICKFIGURE_BONE_LENGTHS } from '../stknds/stickfigureStructure';
+import { calculateWeightedCenterOfMass, evaluateDynamicBalance } from '../physics/dynamicBalanceSolver';
+import { computeBaseOfSupport } from '../physics/contactSupportEngine';
+import type { BalanceStrategy } from '../physics/types';
 import type { MotionFrame } from './proceduralMotion';
 
 export type GaitDirection = 'right' | 'left';
+export type GaitMode = 'walk' | 'run';
+export type AccelerationProfile = 'constant' | 'easeIn' | 'easeOut' | 'easeInOut';
 export type FootContactPhase = 'STANCE' | 'SWING';
 
 export interface LocomotionOptions {
   /** Number of generated frames. */
   frameCount: number;
+  /** Selects walk/run defaults while reusing this single gait solver. */
+  mode?: GaitMode;
+  /** Smooth horizontal speed profile. Run defaults to a short ease-in. */
+  accelerationProfile?: AccelerationProfile;
+  /** Frames used to accelerate from initialSpeedFraction to full speed. */
+  accelerationFrames?: number;
+  /** Optional ease-out duration at the end of the sequence. */
+  decelerationFrames?: number;
+  /** Initial speed as a fraction of terminal speed (0..1). */
+  initialSpeedFraction?: number;
+  /** Final-frame speed as a fraction of terminal speed (0..1). */
+  finalSpeedFraction?: number;
+  /** Vertical pelvis bob amplitude in world pixels; zero disables it. */
+  pelvisBobPx?: number;
+  /** Apply bounded corrections recommended by the existing dynamic-balance solver. */
+  balanceRecovery?: boolean;
+  /** Fraction of recommended counter-lean to apply, clamped to 0..1. */
+  balanceCorrectionStrength?: number;
+  characterMass?: number;
+  /** Gravity in px/s²; converted to per-frame units for the balance solver. */
+  gravityPxPerSecond2?: number;
+  fps?: number;
   /** Frames per complete gait cycle for one leg. */
   cycleFrames?: number;
   /** Root travel per complete gait cycle, in world pixels. */
@@ -50,6 +77,16 @@ export interface ContactAwareLocomotionFrame extends MotionFrame {
     rightFoot: number;
     leftFoot: number;
   };
+  rootVelocityX: number;
+  rootAccelerationX: number;
+  balance: {
+    isBalanced: boolean;
+    stabilityMargin: number;
+    strategy: BalanceStrategy;
+    recommendedCounterLeanDeg: number;
+    appliedCounterLeanDeg: number;
+    centerOfMass: { x: number; y: number };
+  };
 }
 
 export interface LocomotionReport {
@@ -59,6 +96,10 @@ export interface LocomotionReport {
   maxPlantedFootDriftPx: { rightFoot: number; leftFoot: number };
   maxGroundPenetrationPx: number;
   unreachableLimbFrames: number;
+  unbalancedFrames: number;
+  balanceRecoveryFrames: number;
+  minimumStabilityMarginPx: number;
+  maximumAppliedCounterLeanDeg: number;
   diagnostics: string[];
 }
 
@@ -113,19 +154,19 @@ function wrap01(value: number): number {
 }
 
 function footTargetAtFrame(
-  frame: number,
+  cycleCoordinateInput: number,
   phaseOffset: number,
+  phaseAdvance: number,
   options: Required<Pick<LocomotionOptions,
     'cycleFrames' | 'strideLengthPx' | 'stanceFraction' | 'swingHeightPx' | 'groundY' | 'scale' | 'startX' | 'startY' | 'direction'>>,
 ): ScheduledFootTarget {
-  const cycleCoordinate = frame / options.cycleFrames + phaseOffset;
+  const cycleCoordinate = cycleCoordinateInput + phaseOffset;
   const cycleIndex = Math.floor(cycleCoordinate);
   const phase = wrap01(cycleCoordinate);
   const sign = options.direction === 'right' ? 1 : -1;
   const cycleTravel = sign * options.strideLengthPx;
-  const stanceStartFrame = (cycleIndex - phaseOffset) * options.cycleFrames;
   const currentLandingX = options.startX
-    + (stanceStartFrame / options.cycleFrames) * cycleTravel
+    + (cycleIndex - phaseOffset) * cycleTravel
     + cycleTravel * options.stanceFraction * 0.5;
   const nextLandingX = currentLandingX + cycleTravel;
 
@@ -141,7 +182,7 @@ function footTargetAtFrame(
 
   // The cycle is sampled at integer frames, so phase never equals exactly 1.
   // Snap the final sample to the landing endpoint to avoid a discontinuity at wrap.
-  const isLastSampleBeforeWrap = phase + 1 / options.cycleFrames >= 1 - 1e-9;
+  const isLastSampleBeforeWrap = phase + phaseAdvance >= 1 - 1e-9;
   const swingProgress = isLastSampleBeforeWrap ? 1 : Math.max(0, Math.min(
     1,
     (phase - options.stanceFraction) / (1 - options.stanceFraction),
@@ -199,22 +240,22 @@ function solveLegToFootTarget(
 }
 
 /**
- * Generate a repeatable walk cycle using world-space foot targets and analytical
- * two-bone IK. During stance, toe targets are fixed in world space; during swing,
- * toes follow a clearance arc toward the next landing point.
- *
- * The returned report exposes unreachable poses and measured contact errors. This
- * is a 2D kinematic gait generator, not a full dynamic balance or force simulator.
+ * Generate contact-aware walk/run motion using the repository's existing two-bone
+ * IK and dynamic-balance solver. Stance targets remain in world space while the
+ * pelvis follows a configurable bob and acceleration-aware root trajectory.
+ * Bounded torso counter-lean and arm counterbalance reuse existing physics recommendations;
+ * this remains a 2D kinematic model, not a full force simulator.
  */
 export function generateContactAwareLocomotion(
   input: LocomotionOptions,
 ): ContactAwareLocomotionResult {
+  const mode = input.mode ?? 'walk';
   const options = {
     frameCount: input.frameCount,
-    cycleFrames: input.cycleFrames ?? 24,
-    strideLengthPx: input.strideLengthPx ?? 80,
-    stanceFraction: input.stanceFraction ?? 0.62,
-    swingHeightPx: input.swingHeightPx ?? 42,
+    cycleFrames: input.cycleFrames ?? (mode === 'run' ? 16 : 24),
+    strideLengthPx: input.strideLengthPx ?? (mode === 'run' ? 112 : 80),
+    stanceFraction: input.stanceFraction ?? (mode === 'run' ? 0.48 : 0.62),
+    swingHeightPx: input.swingHeightPx ?? (mode === 'run' ? 58 : 42),
     groundY: input.groundY ?? 755,
     scale: input.scale ?? 0.5,
     startX: input.startX ?? 100,
@@ -249,8 +290,35 @@ export function generateContactAwareLocomotion(
     throw new Error('baseAngles must contain exactly 17 finite world-space angles.');
   }
 
+  if (mode !== 'walk' && mode !== 'run') throw new Error('mode must be walk or run.');
+  const accelerationProfile = input.accelerationProfile ?? (mode === 'run' ? 'easeIn' : 'constant');
+  const accelerationFrames = input.accelerationFrames ?? (mode === 'run' ? Math.min(10, options.cycleFrames) : 0);
+  const decelerationFrames = input.decelerationFrames ?? 0;
+  const initialSpeedFraction = input.initialSpeedFraction ?? 0.15;
+  const finalSpeedFraction = input.finalSpeedFraction ?? 0.25;
+  const pelvisBobPx = input.pelvisBobPx ?? (mode === 'run' ? 4.5 : 2.5);
+  const balanceRecovery = input.balanceRecovery ?? true;
+  const balanceCorrectionStrength = input.balanceCorrectionStrength ?? 0.65;
+  const characterMass = input.characterMass ?? 100;
+  const gravityPxPerSecond2 = input.gravityPxPerSecond2 ?? 980;
+  const fps = input.fps ?? 24;
+  if (!Number.isInteger(accelerationFrames) || accelerationFrames < 0 || !Number.isInteger(decelerationFrames) || decelerationFrames < 0) {
+    throw new Error('Acceleration and deceleration frame counts must be non-negative integers.');
+  }
+  if (![initialSpeedFraction, finalSpeedFraction].every((v) => Number.isFinite(v) && v >= 0 && v <= 1)) {
+    throw new Error('Initial and final speed fractions must be between 0 and 1.');
+  }
+  if (!Number.isFinite(pelvisBobPx) || pelvisBobPx < 0 || !Number.isFinite(balanceCorrectionStrength) || balanceCorrectionStrength < 0 || balanceCorrectionStrength > 1) {
+    throw new Error('Pelvis bob must be non-negative and balance correction strength must be between 0 and 1.');
+  }
+  if (!Number.isFinite(characterMass) || characterMass <= 0 || !Number.isFinite(gravityPxPerSecond2) || gravityPxPerSecond2 <= 0 || !Number.isFinite(fps) || fps <= 0) {
+    throw new Error('Mass, gravity, and fps must be finite and positive.');
+  }
+  if (!['constant', 'easeIn', 'easeOut', 'easeInOut'].includes(accelerationProfile)) {
+    throw new Error('Unsupported acceleration profile.');
+  }
   const baseAngles = input.baseAngles ? [...input.baseAngles] : defaultAngles();
-  const armSwingDeg = input.armSwingDeg ?? 24;
+  const armSwingDeg = input.armSwingDeg ?? (mode === 'run' ? 34 : 24);
   const plantedFootTolerance = input.plantedFootTolerancePx ?? 0.75;
   if (!Number.isFinite(armSwingDeg) || armSwingDeg < 0 || !Number.isFinite(plantedFootTolerance) || plantedFootTolerance < 0) {
     throw new Error('Arm swing and planted-foot tolerance must be finite and non-negative.');
@@ -261,19 +329,55 @@ export function generateContactAwareLocomotion(
   const maxPlantedFootDriftPx = { rightFoot: 0, leftFoot: 0 };
   let maxGroundPenetrationPx = 0;
   let unreachableLimbFrames = 0;
+  let unbalancedFrames = 0;
+  let balanceRecoveryFrames = 0;
+  let minimumStabilityMarginPx = Infinity;
+  let maximumAppliedCounterLeanDeg = 0;
+  let previousCenterOfMass: { x: number; y: number } | undefined;
+  let previousRootVelocityX = 0;
+  let previousRootX = options.startX;
+  let cycleCoordinate = 0;
   let previousRightToe: FootTarget | undefined;
   let previousLeftToe: FootTarget | undefined;
   let previousRightPhase: FootContactPhase | undefined;
   let previousLeftPhase: FootContactPhase | undefined;
   const sign = options.direction === 'right' ? 1 : -1;
-  const speedPxPerFrame = sign * options.strideLengthPx / options.cycleFrames;
   const isRightFacing = options.direction === 'right';
+  const profileValue = (t: number): number => {
+    const u = Math.max(0, Math.min(1, t));
+    const easeIn = u * u * u * (10 + u * (-15 + 6 * u));
+    if (accelerationProfile === 'constant') return u;
+    if (accelerationProfile === 'easeIn') return easeIn;
+    if (accelerationProfile === 'easeOut') {
+      const v = 1 - u;
+      return 1 - v * v * v * (10 + v * (-15 + 6 * v));
+    }
+    return u * u * (3 - 2 * u);
+  };
+  const speedScaleAt = (frameIndex: number): number => {
+    let scale = 1;
+    if (accelerationFrames > 0 && frameIndex < accelerationFrames) {
+      const t = accelerationFrames <= 1 ? 1 : frameIndex / (accelerationFrames - 1);
+      scale = initialSpeedFraction + (1 - initialSpeedFraction) * profileValue(t);
+    }
+    if (decelerationFrames > 0 && frameIndex >= options.frameCount - decelerationFrames) {
+      const localIndex = frameIndex - (options.frameCount - decelerationFrames);
+      const t = decelerationFrames <= 1 ? 1 : localIndex / (decelerationFrames - 1);
+      const decel = finalSpeedFraction + (1 - finalSpeedFraction) * (1 - profileValue(t));
+      scale = Math.min(scale, decel);
+    }
+    return scale;
+  };
 
   for (let frameIndex = 0; frameIndex < options.frameCount; frameIndex += 1) {
-    const rootX = options.startX + speedPxPerFrame * frameIndex;
-    const rootY = options.startY;
-    const rightTarget = footTargetAtFrame(frameIndex, 0, options);
-    const leftTarget = footTargetAtFrame(frameIndex, 0.5, options);
+    const speedScale = speedScaleAt(frameIndex);
+    const phaseAdvance = speedScale / options.cycleFrames;
+    const rootX = options.startX + sign * cycleCoordinate * options.strideLengthPx;
+    const rootVelocityX = frameIndex === 0 ? 0 : rootX - previousRootX;
+    const rootAccelerationX = rootVelocityX - previousRootVelocityX;
+    const rootY = options.startY + Math.cos(2 * Math.PI * cycleCoordinate) * pelvisBobPx;
+    const rightTarget = footTargetAtFrame(cycleCoordinate, 0, phaseAdvance, options);
+    const leftTarget = footTargetAtFrame(cycleCoordinate, 0.5, phaseAdvance, options);
     const angles = [...baseAngles];
 
     // Counter-swing the arms against their corresponding leg cycles.
@@ -295,7 +399,35 @@ export function generateContactAwareLocomotion(
     if (!rightIK.reachable) unreachableLimbFrames += 1;
     if (!leftIK.reachable) unreachableLimbFrames += 1;
 
-    const joints = solveForwardKinematics17(rootX, rootY, angles, options.scale);
+    let joints = solveForwardKinematics17(rootX, rootY, angles, options.scale);
+    const initialCom = calculateWeightedCenterOfMass(joints, [], characterMass);
+    const comVelocity = previousCenterOfMass
+      ? { x: initialCom.x - previousCenterOfMass.x, y: initialCom.y - previousCenterOfMass.y }
+      : { x: 0, y: 0 };
+    const support = computeBaseOfSupport(joints, options.groundY);
+    const legLengthPx = (STICKFIGURE_BONE_LENGTHS[RIGHT_THIGH] + STICKFIGURE_BONE_LENGTHS[RIGHT_SHIN]) * options.scale;
+    const initialBalance = evaluateDynamicBalance(initialCom, comVelocity, support, legLengthPx, gravityPxPerSecond2 / (fps * fps));
+    const appliedCounterLeanDeg = balanceRecovery ? initialBalance.recommendedCounterLeanDeg * balanceCorrectionStrength : 0;
+    if (Math.abs(appliedCounterLeanDeg) > 1e-6) {
+      angles[7] += appliedCounterLeanDeg;
+      angles[8] += appliedCounterLeanDeg * 0.65;
+      balanceRecoveryFrames += 1;
+      maximumAppliedCounterLeanDeg = Math.max(maximumAppliedCounterLeanDeg, Math.abs(appliedCounterLeanDeg));
+    }
+    if (balanceRecovery && (initialBalance.recommendedStrategy === 'ARM_COUNTERBALANCE' || initialBalance.recommendedStrategy === 'STEPPING')) {
+      const armSign = Math.sign(comVelocity.x) || Math.sign(initialCom.x - support.centerX) || 1;
+      angles[RIGHT_BICEP] -= armSign * 8 * balanceCorrectionStrength;
+      angles[LEFT_BICEP] -= armSign * 8 * balanceCorrectionStrength;
+    }
+    joints = solveForwardKinematics17(rootX, rootY, angles, options.scale);
+    const finalCom = calculateWeightedCenterOfMass(joints, [], characterMass);
+    const finalComVelocity = previousCenterOfMass
+      ? { x: finalCom.x - previousCenterOfMass.x, y: finalCom.y - previousCenterOfMass.y }
+      : { x: 0, y: 0 };
+    const finalSupport = computeBaseOfSupport(joints, options.groundY);
+    const finalBalance = evaluateDynamicBalance(finalCom, finalComVelocity, finalSupport, legLengthPx, gravityPxPerSecond2 / (fps * fps));
+    if (!finalBalance.isBalanced) unbalancedFrames += 1;
+    minimumStabilityMarginPx = Math.min(minimumStabilityMarginPx, finalBalance.stabilityMargin);
     const rightToe = { x: joints[RIGHT_FOOT].endX, y: joints[RIGHT_FOOT].endY };
     const leftToe = { x: joints[LEFT_FOOT].endX, y: joints[LEFT_FOOT].endY };
     const rightResidual = Math.hypot(rightToe.x - rightTarget.target.x, rightToe.y - rightTarget.target.y);
@@ -338,11 +470,25 @@ export function generateContactAwareLocomotion(
       contacts: { rightFoot: rightTarget.phase, leftFoot: leftTarget.phase },
       footTargets: { rightFoot: rightTarget.target, leftFoot: leftTarget.target },
       footResidualPx: { rightFoot: rightResidual, leftFoot: leftResidual },
+      rootVelocityX,
+      rootAccelerationX,
+      balance: {
+        isBalanced: finalBalance.isBalanced,
+        stabilityMargin: finalBalance.stabilityMargin,
+        strategy: initialBalance.recommendedStrategy,
+        recommendedCounterLeanDeg: initialBalance.recommendedCounterLeanDeg,
+        appliedCounterLeanDeg,
+        centerOfMass: finalCom,
+      },
     });
     previousRightToe = rightToe;
     previousLeftToe = leftToe;
     previousRightPhase = rightTarget.phase;
     previousLeftPhase = leftTarget.phase;
+    previousCenterOfMass = finalCom;
+    previousRootVelocityX = rootVelocityX;
+    previousRootX = rootX;
+    cycleCoordinate += phaseAdvance;
   }
 
   const diagnostics: string[] = [];
@@ -358,6 +504,9 @@ export function generateContactAwareLocomotion(
   if (unreachableLimbFrames > 0) {
     diagnostics.push(`${unreachableLimbFrames} leg solves are outside the IK solver's preferred reachable range.`);
   }
+  if (unbalancedFrames > 0) {
+    diagnostics.push(`${unbalancedFrames} frames remain outside the dynamic stability margin after bounded recovery.`);
+  }
   const report: LocomotionReport = {
     passed: diagnostics.length === 0,
     frameCount: frames.length,
@@ -365,6 +514,10 @@ export function generateContactAwareLocomotion(
     maxPlantedFootDriftPx,
     maxGroundPenetrationPx,
     unreachableLimbFrames,
+    unbalancedFrames,
+    balanceRecoveryFrames,
+    minimumStabilityMarginPx: Number.isFinite(minimumStabilityMarginPx) ? minimumStabilityMarginPx : 0,
+    maximumAppliedCounterLeanDeg,
     diagnostics,
   };
   return { frames, report };
