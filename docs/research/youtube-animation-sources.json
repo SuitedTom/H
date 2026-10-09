@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Track animation tutorial sources and transcript verification without storing full copyrighted transcripts.",
+  "sources": [
+    {
+      "id": "alan-becker-stick-figure-revamped",
+      "title": "ALAN BECKER - Stick Figure Animation (revamped)",
+      "creator": "AlanBeckerTutorials",
+      "videoUrl": "https://www.youtube.com/watch?v=mViKZJQcbpM",
+      "transcriptUrl": "https://filmot.com/sidebyside/mViKZJQcbpM/pt/auto.en/Portuguese/English%2B%28auto-generated%29/ALAN%2BBECKER%2B-%2BStick%2BFigure%2BAnimation%2B%28revamped%29/AlanBeckerTutorials",
+      "evidenceStatus": "transcript-page-located; full transcript archive not verified",
+      "language": "English (caption variant needs verification)",
+      "topics": ["stick-figure workflow", "pose planning", "frame-by-frame refinement"],
+      "implementationTargets": ["pose-first blocking", "playback review"],
+      "notes": "Creator describes this as a personal stick-figure animation workflow. No transcript text is reproduced in this repository."
+    },
+    {
+      "id": "tiptut-walk-cycle",
+      "title": "How to Animate a Walk Cycle",
+      "creator": "TipTut",
+      "videoUrl": "https://www.youtube.com/watch?v=mCe1xtx-nK4",
+      "transcriptUrl": null,
+      "evidenceStatus": "video-metadata-and-chapter-markers-verified; transcript-not-verified",
+      "language": "English",
+      "chapters": [
+        {"time": "00:47", "topic": "contact pose"},
+        {"time": "02:26", "topic": "opposite contact pose"},
+        {"time": "05:17", "topic": "passing position"},
+        {"time": "07:14", "topic": "down pose"},
+        {"time": "09:37", "topic": "up pose"},
+        {"time": "11:38", "topic": "arranging key poses"},
+        {"time": "15:27", "topic": "secondary animation"},
+        {"time": "18:30", "topic": "follow-through and overlap"}
+      ],
+      "supportingUrl": "https://www.classcentral.com/course/youtube-how-to-animate-a-walk-cycle-159979",
+      "topics": ["walk cycle", "contact", "passing", "weight shift", "secondary motion", "overlap"],
+      "implementationTargets": ["locomotion pose definitions", "loop seam validation", "foot contact"]
+    },
+    {
+      "id": "alan-becker-perfect-fight-scene",
+      "title": "How to Animate a Perfect Fight Scene",
+      "creator": "Alan Becker",
+      "videoUrl": null,
+      "videoSearchUrl": "https://www.youtube.com/results?search_query=Alan+Becker+How+to+Animate+a+Perfect+Fight+Scene",
+      "transcriptUrl": null,
+      "secondarySummaryUrl": "https://youtubesummary.com/summary/5rH6TfPPEds",
+      "evidenceStatus": "secondary-summary-only; canonical-video-and-transcript-not-verified",
+      "topics": ["fight choreography", "anticipation", "impact readability", "reaction timing"],
+      "implementationTargets": ["action phases", "cause-effect checks"],
+      "notes": "Do not cite the secondary summary as a verified transcript."
+    },
+    {
+      "id": "nfb-12-principles",
+      "title": "The 12 principles of animation",
+      "creator": "National Film Board of Canada",
+      "videoUrl": null,
+      "transcriptUrl": null,
+      "articleUrl": "https://blog.nfb.ca/blog/2015/03/20/12-principles-animation/",
+      "evidenceStatus": "supporting-written-source",
+      "topics": ["anticipation", "staging", "pose-to-pose", "arcs", "overlap", "timing"],
+      "implementationTargets": ["pose design", "timing and spacing", "visual readability"]
+    },
+    {
+      "id": "clip-studio-12-principles",
+      "title": "12 Principles of Animation",
+      "creator": "Clip Studio Paint",
+      "videoUrl": null,
+      "transcriptUrl": null,
+      "articleUrl": "https://www.clipstudio.net/en/animation/12-principles/",
+      "evidenceStatus": "supporting-written-source",
+      "topics": ["follow-through", "overlap", "slow-in-slow-out", "spacing"],
+      "implementationTargets": ["independent body-region timing", "motion curves"]
+    },
+    {
+      "id": "hue-12-principles",
+      "title": "Learn the 12 Principles of Animation",
+      "creator": "HUE",
+      "videoUrl": null,
+      "transcriptUrl": null,
+      "articleUrl": "https://huehd.com/12ps-squash-and-stretch/",
+      "evidenceStatus": "supporting-written-source",
+      "topics": ["12 principles", "squash and stretch", "anticipation"],
+      "implementationTargets": ["principle taxonomy"]
+    },
+    {
+      "id": "studiobinder-12-principles",
+      "title": "The 12 Principles of Animation Explained",
+      "creator": "StudioBinder",
+      "videoUrl": null,
+      "videoSearchUrl": "https://www.youtube.com/results?search_query=StudioBinder+The+12+Principles+of+Animation+Explained",
+      "transcriptUrl": "https://youtubetotranscript.com/transcript?current_language_code=en&v=tYc1yUt0IeA",
+      "evidenceStatus": "transcript-page-located; canonical-video-and-completeness-need-verification",
+      "topics": ["timing", "spacing", "anticipation", "follow-through", "arcs", "exaggeration"],
+      "implementationTargets": ["principle taxonomy", "motion timing"]
+    }
+  ]
+}
