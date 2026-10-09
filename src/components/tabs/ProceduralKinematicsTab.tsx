@@ -32,7 +32,7 @@ export const ProceduralKinematicsTab: React.FC<ProceduralKinematicsTabProps> = (
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] font-mono px-2.5 py-1 bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] rounded font-semibold">
-                      Skill: /PROCEDURAL_ANIMATION_KINEMATICS_SKILL.md
+                      Skill: docs/skills/PROCEDURAL_ANIMATION_KINEMATICS_SKILL.md
                     </span>
                   </div>
                 </div>
