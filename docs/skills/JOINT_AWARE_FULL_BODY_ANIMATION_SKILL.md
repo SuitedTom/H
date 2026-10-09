@@ -58,6 +58,43 @@ Examples:
 
 These are planning templates; timing and exact joint order must be tuned to the intended style and the character's design.
 
+## Pose quality: posture, silhouette, and action-specific formations
+
+A valid 17-angle array is only structurally valid; it is not automatically a convincing human pose. Prefer the existing `src/motion/posePresets.ts` canonical pose library and `src/motion/intentParser.ts` compiler rather than creating another pose library.
+
+### Running posture
+- Treat running as a sequence of distinct contact/catch, compression, drive/push-off, and flight/hang poses, not just a faster walk.
+- Lean the body as a coordinated unit from the ankle/pelvis region; do not fold the neck and head forward to fake speed.
+- Keep elbows visibly flexed and swing the arms opposite the legs.
+- Drive the lead knee forward during flight while the trailing leg extends or folds according to the run style.
+- Include compression and flight height; tune the two sides as alternating poses and inspect the loop seam.
+- Keep the support foot planted during stance and release it deliberately at toe-off.
+
+### Punch posture
+- Start from a guarded, balanced stance with a clear loaded/chamber pose.
+- Transfer force through support foot, pelvis, torso, shoulder, elbow, wrist, and fist; avoid extending only the forearm.
+- Align the fist with the intended target at the impact frame and keep the non-striking hand protecting the head/torso.
+- Show a distinct contact extreme, then retract to guard with a plausible weight recovery.
+- Avoid a locked elbow, wrist kink, unmotivated torso twist, or a support base that cannot plausibly carry the pose.
+
+### Sword posture
+- Specify the weapon hand, grip orientation, blade direction, and intended cut path before tuning angles.
+- Use a clear guard, loaded wind-up, strike/contact extreme, follow-through, and recovery/guard pose.
+- Connect torso and hip rotation to the shoulder and weapon arm; the sword must not look like it is moving independently of the hand.
+- Check the blade silhouette against the character and target; avoid hiding the hand behind the torso or pointing the blade through the body.
+- Preserve a usable stance during the cut, then allow the torso, arms, and weapon to settle at different rates.
+- Treat the current named sword presets as starting key poses, not as proof of a correct grip or a finished animation. Weapon geometry and blade-to-hand alignment must be checked by the renderer or a weapon-aware validator.
+
+### Pose acceptance
+For every new preset, check:
+1. Exactly 17 finite angles and correct skeleton ordering.
+2. Readable silhouette at thumbnail size.
+3. Intended knee and elbow bend direction for the facing direction.
+4. Torso/pelvis rotation supports the action rather than remaining generic.
+5. Support feet, hand targets, and prop/weapon alignment match the pose's intent.
+6. Adjacent presets differ meaningfully in the intended action phase.
+7. Full-frame interpolation is reviewed for limb flips, clipping, foot sliding, and awkward intermediate shapes.
+
 ## Validation metrics
 
 Where the code can measure them, record:
