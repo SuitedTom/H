@@ -154,6 +154,128 @@ export const CANONICAL_POSE_PRESETS: Record<string, number[]> = {
     105, 108,
     -50, 80, 80,
   ],
+
+  // Run cycle: right-foot contact, left leg trailing, arms counter-swing.
+  // This is a readable key pose, not a complete cycle by itself.
+  run_contact_r: [
+    0,
+    -48, -112, -12,
+    -132, -55, 22,
+    78, 80,          // Forward whole-body lean; head remains relatively level.
+    -28, -112, -105, // Forward arm drives while elbow stays flexed.
+    88, 88,
+    148, 58, 52,     // Opposing arm swing, also with a bent elbow.
+  ],
+
+  // Run cycle: right-leg drive/push-off with strong hip extension.
+  run_drive_r: [
+    0,
+    -78, -82, 8,
+    -48, -128, 12,
+    76, 79,
+    -55, -130, -120,
+    88, 88,
+    125, 48, 42,
+  ],
+
+  // Run cycle: flight/hang pose; lead knee drives forward and rear leg trails.
+  run_flight_r: [
+    0,
+    -48, -118, -18,
+    -145, -48, 18,
+    80, 82,
+    -35, -118, -108,
+    90, 90,
+    145, 55, 48,
+  ],
+
+  // Mirrored run contact key pose for alternating gait phase.
+  run_contact_l: [
+    0,
+    -132, -55, 22,
+    -48, -112, -12,
+    78, 80,
+    148, 58, 52,
+    88, 88,
+    -28, -112, -105,
+  ],
+
+  // Punch: loaded chamber, rear shoulder and torso rotate into the strike.
+  strike_punch_chamber: [
+    0,
+    -78, -105, 0,
+    -112, -72, 8,
+    78, 73,
+    -68, 48, 52,
+    88, 90,
+    -115, -48, -42,
+  ],
+
+  // Punch recovery: fist retracts to guard and weight returns over the support base.
+  strike_punch_recover: [
+    0,
+    -82, -100, 0,
+    -108, -78, 5,
+    86, 88,
+    -55, 55, 58,
+    90, 90,
+    -82, 68, 70,
+  ],
+
+  // Sword: compact ready guard. Right hand is the weapon hand; off-hand protects.
+  sword_guard: [
+    0,
+    -72, -110, 0,
+    -112, -76, 4,
+    84, 82,
+    42, 68, 58,     // Weapon arm raised; wrist/hand follows the forearm.
+    90, 90,
+    -55, 62, 64,    // Off-hand stays near the torso/guard line.
+  ],
+
+  // Sword: overhead/high-line wind-up. Load hips and torso; keep the weapon hand connected.
+  sword_windup_high: [
+    0,
+    -64, -120, 0,
+    -118, -72, 5,
+    78, 72,
+    88, 72, 62,
+    92, 90,
+    -48, 62, 65,
+  ],
+
+  // Sword: descending diagonal slash at the action extreme.
+  sword_slash_contact: [
+    0,
+    -58, -122, -8,
+    -118, -70, 10,
+    100, 104,       // Torso rotation contributes to the cut instead of arm-only motion.
+    -28, -52, -42,
+    86, 88,
+    -62, 58, 62,
+  ],
+
+  // Sword: follow-through after the blade passes the target line.
+  sword_followthrough: [
+    0,
+    -52, -115, -5,
+    -122, -68, 8,
+    108, 112,
+    -62, -88, -78,
+    88, 90,
+    -70, 55, 58,
+  ],
+
+  // Sword: controlled recovery back toward guard, ready for the next action.
+  sword_recover: [
+    0,
+    -74, -108, 0,
+    -110, -78, 2,
+    88, 88,
+    24, 62, 58,
+    90, 90,
+    -52, 62, 65,
+  ],
 };
 
 export function getPosePreset(name: string): number[] {
