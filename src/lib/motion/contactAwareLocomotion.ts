@@ -215,7 +215,7 @@ export function generateContactAwareLocomotion(
     groundY: input.groundY ?? 755,
     scale: input.scale ?? 0.5,
     startX: input.startX ?? 100,
-    startY: input.startY ?? input.groundY! - (
+    startY: input.startY ?? (input.groundY ?? 755) - (
       STICKFIGURE_BONE_LENGTHS[RIGHT_THIGH] + STICKFIGURE_BONE_LENGTHS[RIGHT_SHIN]
     ) * (input.scale ?? 0.5) * 0.94,
     direction: input.direction ?? 'right',
@@ -260,6 +260,8 @@ export function generateContactAwareLocomotion(
   let unreachableLimbFrames = 0;
   let previousRightToe: FootTarget | undefined;
   let previousLeftToe: FootTarget | undefined;
+  let previousRightPhase: FootContactPhase | undefined;
+  let previousLeftPhase: FootContactPhase | undefined;
   const sign = options.direction === 'right' ? 1 : -1;
   const speedPxPerFrame = sign * options.strideLengthPx / options.cycleFrames;
   const isRightFacing = options.direction === 'right';
@@ -298,7 +300,7 @@ export function generateContactAwareLocomotion(
 
     if (rightTarget.phase === 'STANCE') {
       stanceFrameCount.rightFoot += 1;
-      if (previousRightToe) {
+      if (previousRightToe && previousRightPhase === 'STANCE') {
         maxPlantedFootDriftPx.rightFoot = Math.max(
           maxPlantedFootDriftPx.rightFoot,
           Math.hypot(rightToe.x - previousRightToe.x, rightToe.y - previousRightToe.y),
@@ -307,7 +309,7 @@ export function generateContactAwareLocomotion(
     }
     if (leftTarget.phase === 'STANCE') {
       stanceFrameCount.leftFoot += 1;
-      if (previousLeftToe) {
+      if (previousLeftToe && previousLeftPhase === 'STANCE') {
         maxPlantedFootDriftPx.leftFoot = Math.max(
           maxPlantedFootDriftPx.leftFoot,
           Math.hypot(leftToe.x - previousLeftToe.x, leftToe.y - previousLeftToe.y),
@@ -336,6 +338,8 @@ export function generateContactAwareLocomotion(
     });
     previousRightToe = rightToe;
     previousLeftToe = leftToe;
+    previousRightPhase = rightTarget.phase;
+    previousLeftPhase = leftTarget.phase;
   }
 
   const diagnostics: string[] = [];
