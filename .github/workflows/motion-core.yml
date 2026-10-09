@@ -1,0 +1,37 @@
+name: Motion Core Verification
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/motion/**'
+      - 'src/lib/skills/kinematicsSolvers.ts'
+      - 'src/lib/stknds/stickfigureStructure.ts'
+      - 'scripts/test-motion-core.ts'
+      - 'scripts/test-contact-aware-locomotion.ts'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/motion-core.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/lib/motion/**'
+      - 'src/lib/skills/kinematicsSolvers.ts'
+      - 'src/lib/stknds/stickfigureStructure.ts'
+      - 'scripts/test-motion-core.ts'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/motion-core.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run test:motion
+      - run: npm run test:locomotion
+      - run: npm run lint
+      - run: npm run build
