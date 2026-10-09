@@ -126,6 +126,15 @@ export const ANIMATION_MODES: {
     badge: 'Deformable Physics',
     tagline: 'Disney 12-principles deformation, apex deceleration and ground restitution',
   },
+  {
+    id: 'fruit-ninja',
+    label: 'Fruit Ninja Katana Slicing (115f Master)',
+    shortLabel: '🍉 Fruit Ninja Katana',
+    presetPath: '/downloads/fruit_ninja_katana_24fps.stknds',
+    fps: 24,
+    badge: '24 FPS · 115f Master',
+    tagline: 'Katana slash, mid-air fruit split, juice particle dispersion & sheathing stance reset',
+  },
 ];
 
 export const AppHeader: React.FC<AppHeaderProps> = ({

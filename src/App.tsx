@@ -41,6 +41,13 @@ import {
 } from './lib/propelledFlight/propelledFlightExporter';
 
 import {
+  type FruitNinjaGeneratorConfig,
+  buildAdjustedFruitNinjaFrames,
+  validateFruitNinjaBiomechanics,
+  synthesizeFruitNinjaStknds,
+} from './lib/fruitNinjaFrames';
+
+import {
   type BasketballGeneratorConfig,
   buildCanonicalBasketballFrames,
   validateBasketballBiomechanics,
@@ -84,7 +91,7 @@ import { EngineeringSuite } from './components/workspace/EngineeringSuite';
 
 export function App() {
   const [activeAnimationMode, setActiveAnimationMode] = useState<
-    'combat' | 'parkour' | 'basketball' | 'stroll-kick' | 'phantom' | 'teleport' | 'sneeze' | 'superhero' | 'bounce' | 'speed-strength'
+    'combat' | 'parkour' | 'basketball' | 'stroll-kick' | 'phantom' | 'teleport' | 'sneeze' | 'superhero' | 'bounce' | 'speed-strength' | 'fruit-ninja'
   >('combat');
 
   const [globalFps, setGlobalFps] = useState<12 | 24>(24);
@@ -196,6 +203,17 @@ export function App() {
     enableSquashStretch: true,
     squashIntensity: 1.0,
     ballColorHex: '#0284C7',
+  });
+
+  const [fruitNinjaConfig, setFruitNinjaConfig] = useState<FruitNinjaGeneratorConfig>({
+    projectName: 'fruit_ninja_katana',
+    targetFps: 24,
+    ninjaColorHex: '#0F172A',
+    bladeColorHex: '#E2E8F0',
+    groundY: 755.0,
+    enableSlashTrails: true,
+    enableJuiceParticles: true,
+    fruitScale: 1.0,
   });
 
   const handleSelectFps = (fps: 12 | 24) => {
@@ -320,6 +338,8 @@ export function App() {
       setActiveAnimationMode('superhero');
     } else if (lower.includes('bounce') || lower.includes('project6')) {
       setActiveAnimationMode('bounce');
+    } else if (lower.includes('fruit') || lower.includes('ninja') || lower.includes('katana')) {
+      setActiveAnimationMode('fruit-ninja');
     }
   }, []);
 
@@ -432,6 +452,11 @@ export function App() {
     return buildBounceKeyframes(bounceConfig);
   }, [bounceConfig]);
 
+  const fruitNinjaFrames = useMemo(
+    () => buildAdjustedFruitNinjaFrames(fruitNinjaConfig),
+    [fruitNinjaConfig]
+  );
+
   const totalModeFrames =
     binaryStageOverride && activeInspection && activeInspection.frames.length > 0
       ? activeInspection.frames.length
@@ -453,6 +478,8 @@ export function App() {
       ? sneezeFrames.length
       : activeAnimationMode === 'superhero'
       ? superheroFrames.length
+      : activeAnimationMode === 'fruit-ninja'
+      ? fruitNinjaFrames.length
       : computedBounceFrames.length;
 
   const effectivePlaybackFps = globalFps;
@@ -511,6 +538,10 @@ export function App() {
         if (!baseTemplate22) return;
         filename = `${bounceConfig.projectName}_${globalFps}fps.stknds`;
         bytes = await synthesizeBounceStknds(baseTemplate22, bounceConfig);
+      } else if (activeAnimationMode === 'fruit-ninja') {
+        if (!baseTemplate27) return;
+        filename = `${fruitNinjaConfig.projectName}_${globalFps}fps.stknds`;
+        bytes = await synthesizeFruitNinjaStknds(baseTemplate27, fruitNinjaConfig);
       }
 
       if (bytes) {
@@ -768,6 +799,9 @@ export function App() {
               safeSpeedStrengthFrame={safeSpeedStrengthFrame}
               safeHeroFrame={safeHeroFrame}
               safeBounceFrame={safeBounceFrame}
+            fruitNinjaConfig={fruitNinjaConfig}
+            fruitNinjaFrames={fruitNinjaFrames}
+            safeFruitNinjaFrame={fruitNinjaFrames[currentFrame % fruitNinjaFrames.length]}
             />
           )}
 
@@ -966,6 +1000,9 @@ export function App() {
               safeSpeedStrengthFrame={safeSpeedStrengthFrame}
               safeHeroFrame={safeHeroFrame}
               safeBounceFrame={safeBounceFrame}
+              fruitNinjaConfig={fruitNinjaConfig}
+              fruitNinjaFrames={fruitNinjaFrames}
+              safeFruitNinjaFrame={fruitNinjaFrames[currentFrame % fruitNinjaFrames.length]}
             />
           </div>
 

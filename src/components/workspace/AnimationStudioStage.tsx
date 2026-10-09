@@ -70,6 +70,9 @@ export interface AnimationStudioStageProps {
   safeSpeedStrengthFrame: any;
   safeHeroFrame: any;
   safeBounceFrame: any;
+  fruitNinjaConfig?: any;
+  fruitNinjaFrames?: any[];
+  safeFruitNinjaFrame?: any;
 }
 
 export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
@@ -106,6 +109,9 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
   sneezeConfig,
   heroConfig,
   bounceConfig,
+  fruitNinjaConfig,
+  fruitNinjaFrames = [],
+  safeFruitNinjaFrame,
   basketballFrames,
   strollKickFrames,
   phantomFrames,
@@ -207,6 +213,9 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
     }
     if (activeAnimationMode === 'superhero' && safeHeroFrame) {
       return `${safeHeroFrame.act || 'Flight'} · Frame ${currentFrame}`;
+    }
+    if (activeAnimationMode === 'fruit-ninja' && safeFruitNinjaFrame) {
+      return `${safeFruitNinjaFrame.act} · ${safeFruitNinjaFrame.phase}`;
     }
     if (activeAnimationMode === 'bounce') {
       const bf = computedBounceFrames?.[currentFrame % (computedBounceFrames?.length || 22)];
@@ -330,6 +339,9 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
           sneezeConfig={sneezeConfig}
           heroConfig={heroConfig}
           bounceConfig={bounceConfig}
+          fruitNinjaConfig={fruitNinjaConfig}
+          fruitNinjaFrames={fruitNinjaFrames}
+          safeFruitNinjaFrame={safeFruitNinjaFrame}
           basketballFrames={basketballFrames}
           strollKickFrames={strollKickFrames}
           phantomFrames={phantomFrames}
@@ -789,6 +801,34 @@ export const AnimationStudioStage: React.FC<AnimationStudioStageProps> = ({
                   <div className="font-semibold text-[11px] whitespace-nowrap">
                     {f === 0 ? 'Apex' : f === 11 ? 'Impact' : f === 21 ? 'Restitution' : `Keyframe ${f}`}
                   </div>
+                </button>
+              ))}
+
+            {activeAnimationMode === 'fruit-ninja' &&
+              [
+                { label: '1. Stance Prep', frame: 0 },
+                { label: '2. Orange Approach', frame: 18 },
+                { label: '3. Orange Slice Impact!', frame: 24 },
+                { label: '4. Watermelon Approach', frame: 38 },
+                { label: '5. Watermelon Split!', frame: 43 },
+                { label: '6. Multi-Slice Jump', frame: 58 },
+                { label: '7. Sheathing Settle', frame: 75 },
+              ].map((jump) => (
+                <button
+                  key={jump.label}
+                  type="button"
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setCurrentFrame(jump.frame);
+                  }}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-lg border text-left transition-all cursor-pointer ${
+                    currentFrame === jump.frame
+                      ? 'bg-emerald-700 border-emerald-700 text-white shadow-xs'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  <div className="text-[10px] font-mono opacity-75">F{jump.frame.toString().padStart(2, '0')}</div>
+                  <div className="font-semibold text-[11px] whitespace-nowrap">{jump.label}</div>
                 </button>
               ))}
           </div>

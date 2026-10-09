@@ -10,6 +10,7 @@ import { STICKFIGURE_PARENTS, STICKFIGURE_BONE_LENGTHS } from '../../lib/stknds/
 import { calculateCenterOfMass17 } from '../../lib/skills/biomechanicalPhysics';
 import { ParkourGeneratorConfig, ParkourKeyframeSpec } from '../../lib/parkourAcrobatFrames';
 import { CombatGeneratorConfig, CombatKeyframeSpec } from '../../lib/combatFrames';
+import { FruitNinjaGeneratorConfig, FruitNinjaKeyframeSpec } from '../../lib/fruitNinjaFrames';
 
 interface AppCanvasProps {
   binaryStageOverride: boolean;
@@ -37,6 +38,9 @@ interface AppCanvasProps {
   sneezeConfig: EpicSneezeGeneratorConfig;
   heroConfig: SuperheroGeneratorConfig;
   bounceConfig: BounceGeneratorConfig;
+  fruitNinjaConfig?: FruitNinjaGeneratorConfig;
+  fruitNinjaFrames?: FruitNinjaKeyframeSpec[];
+  safeFruitNinjaFrame?: FruitNinjaKeyframeSpec;
   basketballFrames: BasketballKeyframeSpec[];
   strollKickFrames: SitWalkKickKeyframeSpec[];
   phantomFrames: PhantomShadowboxKeyframeSpec[];
@@ -80,6 +84,9 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
   sneezeConfig,
   heroConfig,
   bounceConfig,
+  fruitNinjaConfig,
+  fruitNinjaFrames = [],
+  safeFruitNinjaFrame,
   basketballFrames,
   strollKickFrames,
   phantomFrames,
@@ -2991,6 +2998,161 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
       drawStickfigurePose(safeIdx, 1.0, false);
 
       ctx.restore();
+    } else if (activeAnimationMode === 'fruit-ninja' && fruitNinjaFrames.length > 0) {
+      const safeIdx = currentFrame % fruitNinjaFrames.length;
+      const activeSpec = fruitNinjaFrames[safeIdx];
+
+      ctx.save();
+      const targetSceneX = 320;
+      const targetSceneY = 180;
+      ctx.translate(w * 0.5, h * 0.5);
+      ctx.scale(1.15, 1.15);
+      ctx.translate(-targetSceneX * scaleX, -targetSceneY * scaleY);
+
+      const groundSceneY = 515;
+      const groundCanvasY = groundSceneY * scaleY;
+
+      // Authentic Fruit Ninja Two-Tone Background (Purple Sky, Lavender/Blue Ground)
+      const fnSky = ctx.createLinearGradient(0, 0, 0, groundCanvasY);
+      fnSky.addColorStop(0, '#8B5CF6'); // Vibrant Purple
+      fnSky.addColorStop(1, '#A855F7');
+      ctx.fillStyle = fnSky;
+      ctx.fillRect(-2400, -1600, w + 4800, groundCanvasY + 1600);
+
+      const fnGround = ctx.createLinearGradient(0, groundCanvasY, 0, groundCanvasY + 600 * scaleY);
+      fnGround.addColorStop(0, '#6366F1'); // Indigo/Lavender ground
+      fnGround.addColorStop(1, '#4F46E5');
+      ctx.fillStyle = fnGround;
+      ctx.fillRect(-2400, groundCanvasY, w + 4800, 1600);
+
+      // Title Overlay Text ("Fruit ninja")
+      if (activeSpec.titleOverlay) {
+        ctx.save();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 4 * scaleX;
+        ctx.font = '800 38px "Plus Jakarta Sans", sans-serif';
+        ctx.strokeText(activeSpec.titleOverlay, 270 * scaleX, 100 * scaleY);
+        ctx.fillText(activeSpec.titleOverlay, 270 * scaleX, 100 * scaleY);
+        ctx.restore();
+      }
+
+      // Ground plane
+      ctx.strokeStyle = '#312E81';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-400 * scaleX, groundCanvasY);
+      ctx.lineTo(2400 * scaleX, groundCanvasY);
+      ctx.stroke();
+
+      // Draw Flying Fruits & Halves
+      for (const fruit of activeSpec.fruits) {
+        ctx.save();
+        if (!fruit.isSplit) {
+          // Whole Fruit
+          ctx.translate(fruit.x * scaleX, fruit.y * scaleY);
+          ctx.rotate((fruit.rotationDeg * Math.PI) / 180);
+          ctx.fillStyle = fruit.type === 'orange' ? '#F97316' : fruit.type === 'watermelon' ? '#22C55E' : '#EF4444';
+          ctx.beginPath();
+          ctx.arc(0, 0, fruit.radius * scaleX, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Split Fruit Half 1
+          ctx.save();
+          ctx.translate((fruit.x + fruit.half1.x) * scaleX, (fruit.y + fruit.half1.y) * scaleY);
+          ctx.rotate((fruit.half1.rotationDeg * Math.PI) / 180);
+          ctx.fillStyle = fruit.type === 'orange' ? '#EA580C' : '#16A34A';
+          ctx.beginPath();
+          ctx.arc(0, 0, fruit.radius * scaleX, Math.PI, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Split Fruit Half 2
+          ctx.save();
+          ctx.translate((fruit.x + fruit.half2.x) * scaleX, (fruit.y + fruit.half2.y) * scaleY);
+          ctx.rotate((fruit.half2.rotationDeg * Math.PI) / 180);
+          ctx.fillStyle = fruit.type === 'orange' ? '#EA580C' : '#16A34A';
+          ctx.beginPath();
+          ctx.arc(0, 0, fruit.radius * scaleX, Math.PI, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          // Juice Particles
+          for (const jp of fruit.juiceParticles) {
+            ctx.fillStyle = jp.colorHex;
+            ctx.globalAlpha = jp.alpha;
+            ctx.beginPath();
+            ctx.arc(jp.x * scaleX, jp.y * scaleY, jp.radius * scaleX, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      }
+
+      // Draw Ninja Character (17 bones)
+      const joints = computeForwardKinematics(activeSpec.manX, activeSpec.manY, activeSpec.manAngles, 0.5);
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      for (let i = 1; i < 17; i++) {
+        if (i === 13) continue;
+        const j = joints[i];
+        ctx.strokeStyle = fruitNinjaConfig?.ninjaColorHex || '#1E293B';
+        ctx.lineWidth = Math.max(3, j.thickness * 0.55 * scaleX);
+        ctx.beginPath();
+        ctx.moveTo(j.startX * scaleX, j.startY * scaleY);
+        ctx.lineTo(j.endX * scaleX, j.endY * scaleY);
+        ctx.stroke();
+      }
+
+      // Head
+      const headJ = joints[13];
+      const headCenterX = ((headJ.startX + headJ.endX) * 0.5) * scaleX;
+      const headCenterY = ((headJ.startY + headJ.endY) * 0.5) * scaleY;
+      const headRadius = (headJ.length * 0.5 * 0.5) * scaleX;
+      ctx.fillStyle = fruitNinjaConfig?.ninjaColorHex || '#1E293B';
+      ctx.beginPath();
+      ctx.arc(headCenterX, headCenterY, headRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Katana Sword
+      const handJ = joints[16]; // RHand
+      const handX = handJ.endX * scaleX;
+      const handY = handJ.endY * scaleY;
+
+      ctx.save();
+      ctx.translate(handX, handY);
+      ctx.rotate((activeSpec.katanaAngleDeg * Math.PI) / 180);
+      ctx.strokeStyle = fruitNinjaConfig?.bladeColorHex || '#E2E8F0';
+      ctx.lineWidth = 5 * scaleX;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(activeSpec.katanaLength * scaleX, 0);
+      ctx.stroke();
+      ctx.restore();
+
+      // Blade Motion Slash Trail
+      if (activeSpec.isSlashActive && activeSpec.slashArcTrail) {
+        const trail = activeSpec.slashArcTrail;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.lineWidth = 14 * scaleX;
+        ctx.beginPath();
+        ctx.arc(
+          trail.centerX * scaleX,
+          trail.centerY * scaleY,
+          trail.radius * scaleX,
+          trail.startAngleRad,
+          trail.endAngleRad,
+          true
+        );
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.restore(); // Restore Ninja
+      ctx.restore(); // Restore Scene
     } else {
       // Ball Bounce Rendering Mode
       const groundCanvasY =
@@ -3158,6 +3320,8 @@ export const AppCanvas: React.FC<AppCanvasProps> = ({
     sneezeConfig,
     heroConfig,
     bounceConfig,
+    fruitNinjaConfig,
+    fruitNinjaFrames,
     resizeTrigger,
   ]);
 
