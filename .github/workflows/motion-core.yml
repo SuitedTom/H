@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - 'src/lib/motion/**'
+      - 'src/motion/posePresets.ts'
       - 'src/lib/physics/dynamicBalanceSolver.ts'
       - 'src/lib/physics/contactSupportEngine.ts'
       - 'src/lib/skills/kinematicsSolvers.ts'
       - 'src/lib/stknds/stickfigureStructure.ts'
       - 'scripts/test-motion-core.ts'
       - 'scripts/test-contact-aware-locomotion.ts'
+      - 'scripts/test-pose-presets.ts'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/motion-core.yml'
@@ -17,6 +19,7 @@ on:
     branches: [main]
     paths:
       - 'src/lib/motion/**'
+      - 'src/motion/posePresets.ts'
       - 'src/lib/physics/dynamicBalanceSolver.ts'
       - 'src/lib/physics/contactSupportEngine.ts'
       - 'src/lib/skills/kinematicsSolvers.ts'
@@ -37,5 +40,6 @@ jobs:
       - run: npm install
       - run: npm run test:motion
       - run: npm run test:locomotion
+      - run: npm run test:poses
       - run: npm run lint
       - run: npm run build
