@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'src/lib/motion/**'
+      - 'src/lib/physics/dynamicBalanceSolver.ts'
+      - 'src/lib/physics/contactSupportEngine.ts'
       - 'src/lib/skills/kinematicsSolvers.ts'
       - 'src/lib/stknds/stickfigureStructure.ts'
       - 'scripts/test-motion-core.ts'
@@ -15,6 +17,8 @@ on:
     branches: [main]
     paths:
       - 'src/lib/motion/**'
+      - 'src/lib/physics/dynamicBalanceSolver.ts'
+      - 'src/lib/physics/contactSupportEngine.ts'
       - 'src/lib/skills/kinematicsSolvers.ts'
       - 'src/lib/stknds/stickfigureStructure.ts'
       - 'scripts/test-motion-core.ts'
