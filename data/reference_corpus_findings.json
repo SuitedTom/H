@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-09",
+  "scope": {
+    "mounted_stknds_files_audited": 23,
+    "reference_projects": 11,
+    "generated_or_test_controls": 12,
+    "all_23_containers_gzip_decompressed": true,
+    "total_decompressed_payload_bytes_approx": 53118394,
+    "source_projects_modified": false
+  },
+  "evidence_policy": {
+    "container": "Prefix and gzip integrity validated.",
+    "asset_candidate": "A printable length-prefixed label is followed by a version-334 node/polyfill structure that parses.",
+    "name_classification": "Heuristic only; a filename is not proof of visual role.",
+    "timeline_decoded": false,
+    "native_app_visual_verification": false,
+    "warning": "Candidate records can be nested or overlapping. Asset inventory does not establish frame timing, visibility, z-order, object transforms, camera motion, or audio/effect synchronization."
+  },
+  "references": [
+    {
+      "file": "Ani_ending_part.stknds",
+      "payload_bytes": 8865774,
+      "asset_candidates": 177,
+      "audio_filename_candidates": ["Bass Drop 1 (230).mp3", "Effect Electric.mp3", "Effect Whoosh 4 (236).mp3", "Effect Whoosh 3 (236).mp3", "Effect Whoosh 2.mp3", "Effect Whoosh 1.mp3", "Lightsaber Activate 1 (330).mp3"],
+      "asset_evidence": ["Ground Dust 1-7", "multiple dash/smear resources", "heavy punch effects", "G-spark variants", "Solid black katana", "fist/hand resources", "fade-ball candidate"],
+      "scene_record_candidates": 42,
+      "observed": "Large effects-rich scene with audio filenames and multiple likely object/clip records.",
+      "unknown": "Frame boundaries, per-frame transforms, instance-to-asset mapping, layer order, audio timing, and actual visibility remain unresolved."
+    },
+    {
+      "file": "ultra inst.stknds",
+      "payload_bytes": 14463743,
+      "asset_candidates": 161,
+      "asset_evidence": ["many Goku form/pose variants", "Beerus-planet/forest/floor environment assets", "transformation-effect variants", "aura layers and fills", "energy-ball variants"],
+      "observed": "Large transformation/energy scene resource library.",
+      "unknown": "Transformation order, layer order, camera movement, visibility, and effect timing."
+    },
+    {
+      "file": "hsjsjshs.stknds",
+      "payload_bytes": 5120434,
+      "asset_candidates": 85,
+      "asset_evidence": ["Naruto chakra variants", "Sasuke and Goku variants", "3D background resource", "aura layers/fills", "transformation effects", "ground speed lines"],
+      "observed": "Multi-character and multi-layer effect resource library.",
+      "unknown": "Actual frame use, object transforms, layer order, and camera motion."
+    },
+    {
+      "file": "4-.stknds",
+      "payload_bytes": 1864196,
+      "asset_candidates": 76,
+      "asset_evidence": ["base-stick candidate", "dash/smear variants", "smoke and wind", "flare", "sword-slash-related assets"],
+      "observed": "Fast-action motion-graphic resource library.",
+      "unknown": "Choreography and exact timing."
+    },
+    {
+      "file": "4.stknds",
+      "payload_bytes": 3651271,
+      "asset_candidates": 95,
+      "asset_evidence": ["white-void/background candidate", "ground/floor candidate", "multiple stickfigure assets", "rock/smoke resources", "dash/smear/impact families"],
+      "observed": "Combat and impact-effect resource library with environment assets.",
+      "unknown": "Actual frame-to-asset mapping and event timing."
+    },
+    {
+      "file": "Stickfigure vs stickfigure.stknds",
+      "payload_bytes": 2520936,
+      "asset_candidates": 52,
+      "asset_evidence": ["two stickfigure/base candidates", "punch-hit effect variants", "dash/smear resources", "ground dirt/smoke"],
+      "observed": "Candidate two-character interaction reference.",
+      "unknown": "Contact frames, attacker/target trajectories, reaction timing, and layer order."
+    },
+    {
+      "file": "Sword animation(sub to Melvin_animz).stknds",
+      "payload_bytes": 566351,
+      "asset_candidates": 39,
+      "audio_filename_candidates": ["Sword Stab 1.mp3", "Sword Stab 2.mp3", "Sword Slash.mp3", "Sword Stab Quick.mp3", "Sword Stab 3 (259).mp3", "Sword Stab Through Flesh 01.mp3", "Sword disarm.mp3", "sword out2.mp3", "sword out1.mp3", "Foot Dirt 2 (230).mp3"],
+      "asset_evidence": ["sword/base/segment resources", "slash smears", "flare/spark variants", "blood variants"],
+      "observed": "Useful candidate for weapon arcs, hand attachment, impact, and audio-sync research.",
+      "unknown": "Weapon trajectory, attachment points, contact timing, and audio trigger frames."
+    },
+    {
+      "file": "buddy.stknds",
+      "payload_bytes": 8168050,
+      "asset_candidates": 195,
+      "asset_evidence": ["MaleB body-part variants", "floor/ground/crater resources", "dust/smear/punch resources"],
+      "observed": "Large custom-rig and effects resource library.",
+      "unknown": "Candidate boundaries may be nested/overlapping; timeline and rig instance mapping unresolved."
+    },
+    {
+      "file": "clean-up.stknds",
+      "payload_bytes": 1781216,
+      "asset_candidates": 96,
+      "asset_evidence": ["multiple base-stick candidates", "couch/environment assets", "crack/punch-impact resources", "dash/smear effects", "blood variants"],
+      "observed": "Candidate for environment/prop continuity and impact staging.",
+      "unknown": "Prop interaction trajectories and frame timing."
+    },
+    {
+      "file": "red guy.stknds",
+      "payload_bytes": 3474201,
+      "asset_candidates": 109,
+      "asset_evidence": ["base-stick candidates", "ball-like prop", "hand/fist resources", "dash/smear", "punch/impact variants", "speed-line graphics"],
+      "observed": "Candidate for prop interaction and effect anchoring.",
+      "unknown": "Prop attachment and effect event timing."
+    },
+    {
+      "file": "sjjsjsjsnajakaka.stknds",
+      "payload_bytes": 2209960,
+      "asset_candidates": 0,
+      "asset_evidence": [],
+      "observed": "Current v334/name-boundary heuristic did not recover parseable candidates.",
+      "unknown": "This is a parser coverage gap, not evidence that the project contains no assets; investigate alternate version/header grammar."
+    }
+  ],
+  "generated_or_test_controls": [
+    "Bounce01.stknds",
+    "WalkPush.stknds",
+    "WalkRunPushOff.stknds",
+    "WalkRunPushOff_IK_contact_test.stknds",
+    "WalkRunPushOff_motionmodel_v2.stknds",
+    "WalkRunPushOff_motionmodel_v3.stknds",
+    "audit_test_reference.stknds",
+    "ball_bounce_clean_reference.stknds",
+    "ball_bounce_rebuilt.stknds",
+    "ball_bounce_reverse_engineering_test.stknds",
+    "project6.stknds",
+    "test_gen_reference.stknds"
+  ],
+  "generation_changes_required": [
+    "Discover rig hierarchy and semantic landmarks per asset instead of assuming a universal node layout.",
+    "Decode timeline and instance records while preserving unknown fields losslessly.",
+    "Extract actual world-space landmark trajectories and phase/contact timing from reference frames.",
+    "Use velocity-aware interpolation rather than independently easing every key interval.",
+    "Choose IK bend branch from reference pose and facing, not left/right side alone.",
+    "Separate character root, floor/background, camera, and screen-shake tracks.",
+    "Represent effects as anchored temporal layers with explicit lifetime, order, scale, orientation, and event triggers.",
+    "Tie sound cues to semantic events and preserve timing offsets.",
+    "Measure foot planting, contact alignment, silhouette continuity, body counter-motion, trajectory similarity, effect-anchor drift, and regression.",
+    "Report native-app import/playback separately from parser, serializer, IK, and schematic-render tests."
+  ],
+  "current_blocker": "Full multi-object timeline grammar and per-frame transforms are not yet decoded for the larger references. Do not generate another human animation and call it reference-driven until actual frame trajectories are extracted."
+}
