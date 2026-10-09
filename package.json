@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "lint": "tsc --noEmit",
-    "preview": "vite preview --port=3000 --host=0.0.0.0"
+    "preview": "vite preview --port=3000 --host=0.0.0.0",
+    "test:motion": "tsx scripts/test-motion-core.ts"
   },
   "dependencies": {
     "lucide-react": "^0.475.0",
