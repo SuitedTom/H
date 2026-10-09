@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-09",
+  "hash_algorithm": "SHA-256",
+  "note": "Hashes identify the exact mounted files audited in this session. Payload hashes are computed after removing the nine-byte prefix and decompressing the gzip stream.",
+  "files": [
+    {"file":"4-.stknds","bytes":400820,"sha256":"834e05dacade01fd0eb18c5fabe473b79b3bab4c831adc82ab0797a8fb7c21b3","payload_bytes":1864196,"payload_sha256":"13ef3c1428d123c5ec989bd9ae294821775dbb1032d62850880c530ab940f5f0"},
+    {"file":"4.stknds","bytes":353678,"sha256":"be59dcc1c2d55696ed2be27d3331bcd8e54477663a47137967860b17480c247c","payload_bytes":3651271,"payload_sha256":"947e2f19aeb41a1434a2183aeebf921f6ebb1f51738b92cd28ffffb85db09f89"},
+    {"file":"Ani_ending_part.stknds","bytes":922837,"sha256":"814e56ccdc3b71967c7357841a42e44f534fbf5ba95cc5be6dea695bc004016a","payload_bytes":8865774,"payload_sha256":"0613f161e1db232ee3852e2bfe5e057122129235791cd4f369c5456837a12651"},
+    {"file":"Bounce01.stknds","bytes":898,"sha256":"ec47f57d5285c898ef5f8676e71797543722c8cb15518bebc77d537cb9ecd078","payload_bytes":28969,"payload_sha256":"cf3b1f4b8ebb4fbc65ff5b666d900b3c8d2ed0594191722ef4a9fb04d3804f3c"},
+    {"file":"Stickfigure vs stickfigure.stknds","bytes":221242,"sha256":"bd696774454d7af287a6bab5461ff5ccd3ee5f92aca1e07745a0c7d44cf33873","payload_bytes":2520936,"payload_sha256":"77f8c9110653d781a72706477a3d230d84214120d94354304acdbd894032d56c"},
+    {"file":"Sword animation(sub to Melvin_animz).stknds","bytes":73723,"sha256":"9f4d9c0b3dc66def4f47888301bedaedc63a975bb9e3d5390e84566fcda3213e","payload_bytes":566351,"payload_sha256":"02571af88a4b1327df387286330483985a57004f4913d5de14072cba4e864789"},
+    {"file":"WalkPush.stknds","bytes":4592,"sha256":"ab7434e6301e377788a3a6354dbf288f9d154f5fec4cb3c8addc8e62765ca955","payload_bytes":45727,"payload_sha256":"e29b4d426edd1fb1cc8f6a5fc323a7374595a7a9b60899936e97f60cf89d3ce5"},
+    {"file":"WalkRunPushOff.stknds","bytes":5088,"sha256":"7c3bbddc572ad5389d505b13ce5cdefc7d4b39047217a45d3f067c43451f1652","payload_bytes":60091,"payload_sha256":"81aed417e72120e9e8cbc5ad7c232776a2e315b04f8675236d95de8c122a3a21"},
+    {"file":"WalkRunPushOff_IK_contact_test.stknds","bytes":4748,"sha256":"f86d535aa19f1861f5694538d4bc9b78d428f678e406a576aef4c965d1faf23d","payload_bytes":60091,"payload_sha256":"6457cd16e77556a4b39b442580b2fdd9946efc59d6d484cf0ed955cbd322f654"},
+    {"file":"WalkRunPushOff_motionmodel_v2.stknds","bytes":4230,"sha256":"3cdcb02f87495119786b5b475add15ae96f2bed4056a7b08f44dba5225dbf3a3","payload_bytes":60091,"payload_sha256":"e4f5b59d0b6f9f2603d79c85cc873c229b530c747bf0ac6d3b343ec1a7970380"},
+    {"file":"WalkRunPushOff_motionmodel_v3.stknds","bytes":4230,"sha256":"7d0dc06888f7fec143930fcb8f0cabfdd8671788d121dcba1353083847cf6520","payload_bytes":60091,"payload_sha256":"a12c12cc75bd8fc4ff57138edb2cddb61e3b58697a2906b09d2c7b7ff800385b"},
+    {"file":"audit_test_reference.stknds","bytes":226,"sha256":"116c02b54c10d012c405b75f319c87f6231981080fcb415a08362a580113eef5","payload_bytes":824,"payload_sha256":"0159118157716eaac5c05ff8d8f83bdd59826d1ae75f89ceb43b66b03ca4e710"},
+    {"file":"ball_bounce_clean_reference.stknds","bytes":1078,"sha256":"f988f8dcc276ea1df54d83438413022c418adc79242cec270c1ffe197be79ce4","payload_bytes":28969,"payload_sha256":"bfbd88fd031f321415f01643168f263165230801a0c117a1b3f09bcfe8df5fe5"},
+    {"file":"ball_bounce_rebuilt.stknds","bytes":931,"sha256":"da7af1ee9a8c1d2e08df20205478691a8e879dd4e769e387770f6af8bc422219","payload_bytes":28969,"payload_sha256":"eb7553ce74df5157f72a2a80485c4ffdf018b21d95a026aaf50daa21b4712167"},
+    {"file":"ball_bounce_reverse_engineering_test.stknds","bytes":898,"sha256":"ec47f57d5285c898ef5f8676e71797543722c8cb15518bebc77d537cb9ecd078","payload_bytes":28969,"payload_sha256":"cf3b1f4b8ebb4fbc65ff5b666d900b3c8d2ed0594191722ef4a9fb04d3804f3c"},
+    {"file":"buddy.stknds","bytes":1003826,"sha256":"a6c2ac9e9a1ab63deb3d840d7a1dd8a22a0c1025b23c1e58f32bf09df7a04bf5","payload_bytes":8168050,"payload_sha256":"ea84978e0155d209c149e9292e14f2fca6a3e3d13aab2092200677d782fbcdc3"},
+    {"file":"clean-up.stknds","bytes":360401,"sha256":"38ed5e2599308aeafc0a4322b69bc80f1ee89fcae188b57925a1a7b6428b93e4","payload_bytes":1781216,"payload_sha256":"936e2e0f5d3ae29e93c609ae68b2ee530c985f0c3168298f671a2848270af86b"},
+    {"file":"hsjsjshs.stknds","bytes":459257,"sha256":"7d74cf157b0143945b9429093981930a488c7cc35a8d7eb2eeede2356fb4af92","payload_bytes":5120434,"payload_sha256":"718e7e9717eb197452b84b27922d59c65b5b4b0c5f3048e84424ccd46c8af9e9"},
+    {"file":"project6.stknds","bytes":3383,"sha256":"8f17898ad0a06b38852719819a29d420d29bfb10b7fe4b8668417daa05bf33b5","payload_bytes":28969,"payload_sha256":"64d5f15019e43f7236824fbc4e0d7ce119c0d201c3f4f88b5067a95c8753cfab"},
+    {"file":"red guy.stknds","bytes":505171,"sha256":"6fa677f2cf02a1a19734715c1d54c5c5a75dbae4dd0ef24943f06a848509eb50","payload_bytes":3474201,"payload_sha256":"22c0b34ed65701524aa79f806c13b168e650d7520f6b64fc487060bab1de7f76"},
+    {"file":"sjjsjsjsnajakaka.stknds","bytes":275287,"sha256":"b0fe7137447e270d829eb3892d43f4ad622fc9440ec793a8032d4afcbc2ac0c4","payload_bytes":2209960,"payload_sha256":"4a90e0d119895e7d9f4ca664091a7b16c903be7f9d001cb5f7d6517749d922a2"},
+    {"file":"test_gen_reference.stknds","bytes":193,"sha256":"5f382cb7c28ba8d1ae3c56ee6f87d60eacfb73b8b72ada710a1515579cd6eaed","payload_bytes":502,"payload_sha256":"13e9ecff39516f51551ae7c1edd85cbdaaedf764277fc2a528859e00ad03f21c"},
+    {"file":"ultra inst.stknds","bytes":1836239,"sha256":"34be09956fba8e2b243edc4bd59e357fcfb13ecf8d7ee1a7887d61548f0a8009","payload_bytes":14463743,"payload_sha256":"360f0fc2d2c459a245fe096bc269d9a767fc0fecd1d6339c87848e8fcd09da4f"}
+  ]
+}
