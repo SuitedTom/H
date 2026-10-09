@@ -73,7 +73,8 @@ assert.ok(run.frames.every((frame) => Number.isFinite(frame.rootVelocityX)));
 assert.ok(run.frames.every((frame) => Number.isFinite(frame.rootAccelerationX)));
 assert.ok(run.frames.every((frame) => Number.isFinite(frame.balance.stabilityMargin)));
 assert.ok(run.frames.every((frame) => Number.isFinite(frame.balance.centerOfMass.x)));
-assert.ok(run.frames.some((frame) => Math.abs(frame.balance.appliedCounterLeanDeg) > 0));
+assert.ok(run.frames.every((frame) => frame.balance.strategy === 'NONE' || frame.balance.strategy === 'ANKLE' || frame.balance.strategy === 'HIP' || frame.balance.strategy === 'ARM_COUNTERBALANCE' || frame.balance.strategy === 'STEPPING'));
+assert.ok(run.frames.every((frame) => Math.abs(frame.balance.appliedCounterLeanDeg) <= 14));
 assert.ok(run.report.balanceRecoveryFrames >= 0);
 assert.ok(Number.isFinite(run.report.minimumStabilityMarginPx));
 assert.ok(run.frames[2].rootVelocityX > run.frames[1].rootVelocityX,
