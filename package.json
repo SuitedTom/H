@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "tsc --noEmit",
     "preview": "vite preview --port=3000 --host=0.0.0.0",
-    "test:motion": "tsx scripts/test-motion-core.ts"
+    "test:motion": "tsx scripts/test-motion-core.ts",
+    "test:locomotion": "tsx scripts/test-contact-aware-locomotion.ts"
   },
   "dependencies": {
     "lucide-react": "^0.475.0",

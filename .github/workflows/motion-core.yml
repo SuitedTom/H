@@ -7,6 +7,7 @@ on:
       - 'src/lib/skills/kinematicsSolvers.ts'
       - 'src/lib/stknds/stickfigureStructure.ts'
       - 'scripts/test-motion-core.ts'
+      - 'scripts/test-contact-aware-locomotion.ts'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/motion-core.yml'
@@ -31,5 +32,6 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm run test:motion
+      - run: npm run test:locomotion
       - run: npm run lint
       - run: npm run build
