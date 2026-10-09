@@ -74,6 +74,8 @@ export interface MotionTrack {
   totalFrames: number;
   animateOnTwos?: boolean;
   frames: Pose17[];
+  /** Optional per-track action-aware quality report, populated by the intent compiler. */
+  qualityReport?: import('../../skills/validation/AnimationQualityAnalyzer').AnimationQualityReport;
 }
 
 export interface TwoBoneIKSolution {

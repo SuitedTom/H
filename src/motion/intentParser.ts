@@ -8,6 +8,7 @@ import { getPosePreset } from './posePresets';
 import { solveArmIK, solveTwoBoneIK } from './ikSolvers';
 import { expandKeyframesToMotion } from './animator';
 import { PHYSICS_CONFIG } from './config';
+import { AnimationQualityAnalyzer, inferMotionAction } from '../../skills/validation/AnimationQualityAnalyzer';
 
 /**
  * Parses and compiles an AnimationIntentDocument into full-frame MotionTracks.
@@ -155,5 +156,32 @@ export function compileIntentToMotion(
     }
   }
 
+  // Audit the final compiled frames, including synchronized hit-stop/recoil changes.
+  const analyzer = new AnimationQualityAnalyzer();
+  for (const track of tracks) {
+    const char = doc.characters.find((candidate) => candidate.id === track.id);
+    if (!char) continue;
+    const keys = [...char.keyframes].sort((a, b) => a.frame - b.frame);
+    const auditFrames = track.frames.map((pose, frameIndex) => {
+      let active = keys[0];
+      for (const key of keys) {
+        if (key.frame <= frameIndex) active = key;
+        else break;
+      }
+      const phase = `${active.preset ?? ''} ${active.intent ?? ''}`.trim();
+      return {
+        frameIndex, pelvisX: pose.rootX, pelvisY: pose.rootY, worldAnglesDeg: pose.angles,
+        isRightFacing: pose.facingRight, scale: pose.scale,
+        action: inferMotionAction(active.intent, active.preset), phase,
+        intentionalHold: active.intentionalHold === true || /hit[\s-]?stop|freeze|intentional hold|pause/i.test(phase),
+        expectedContacts: {
+          ...(active.contacts?.leftFoot ? { leftPlanted: active.contacts.leftFoot.state === 'PLANT' || active.contacts.leftFoot.state === 'HEEL_STRIKE' } : {}),
+          ...(active.contacts?.rightFoot ? { rightPlanted: active.contacts.rightFoot.state === 'PLANT' || active.contacts.rightFoot.state === 'HEEL_STRIKE' } : {}),
+        },
+        ...(active.adjustments?.reachTarget ? { handTarget: active.adjustments.reachTarget } : {}),
+      };
+    });
+    track.qualityReport = analyzer.analyzeAnimation(auditFrames, groundY, keys[0]?.root.facing !== 'left');
+  }
   return tracks;
 }

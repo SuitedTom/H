@@ -1,7 +1,29 @@
 /**
- * Human Anatomy & Joint Constraints System.
- * Enforces biological 1-DOF knee/elbow hinge polarity, ankle range limits, and spinal distribution.
+ * Anatomical constraints for the repository's canonical Stick Nodes 17-bone layout.
+ *
+ * Canonical order:
+ * 0 pelvis, 1-3 right leg, 4-6 left leg, 7 lower spine, 8 upper chest,
+ * 9-11 right arm, 12 neck, 13 head, 14-16 left arm.
+ *
+ * A 2D projected angle alone cannot determine one universal signed knee/elbow
+ * bend for every side, facing direction and stylized pose. These limits constrain
+ * plausible relative-angle ranges; action-aware evaluation handles posture intent.
  */
+export const ANATOMICAL_JOINT_INDEX = {
+  pelvis: 0, rightThigh: 1, rightShin: 2, rightFoot: 3,
+  leftThigh: 4, leftShin: 5, leftFoot: 6,
+  lowerSpine: 7, upperChest: 8,
+  rightBicep: 9, rightForearm: 10, rightHand: 11,
+  neck: 12, head: 13,
+  leftBicep: 14, leftForearm: 15, leftHand: 16,
+} as const;
+
+export const ANATOMICAL_JOINT_NAMES = [
+  "Pelvis", "Right Thigh", "Right Shin", "Right Foot",
+  "Left Thigh", "Left Shin", "Left Foot", "Lower Spine",
+  "Upper Chest", "Right Bicep", "Right Forearm", "Right Hand",
+  "Neck", "Head", "Left Bicep", "Left Forearm", "Left Hand",
+] as const;
 
 export interface JointConstraintRule {
   jointIndex: number;
@@ -10,73 +32,61 @@ export interface JointConstraintRule {
   maxRelAngleDeg: number;
   description: string;
 }
+export interface JointLimit { minRel: number; maxRel: number; }
 
-/**
- * Standard Anatomical Joint Limits for Stick Nodes 17-bone skeleton.
- */
-export function getAnatomicalJointLimits(isRightFacing: boolean): Record<number, { minRel: number; maxRel: number }> {
-  // Relative angles: child world angle - parent world angle
+function wrapSignedDegrees(angle: number): number {
+  return ((angle + 180) % 360 + 360) % 360 - 180;
+}
+
+/** Relative-angle limits use the true 17-node hierarchy. */
+export function getAnatomicalJointLimits(_isRightFacing: boolean): Record<number, JointLimit> {
   return {
-    // Knees (Nodes 2 & 5 relative to Thighs Nodes 1 & 4)
-    // Kneecap points facing direction.
-    // Facing Right (+X): Shin angle must be <= Thigh angle (rel angle <= 0, e.g. -140° to 0°).
-    // Facing Left (-X): Shin angle must be >= Thigh angle (rel angle >= 0, e.g. 0° to +140°).
-    2: isRightFacing ? { minRel: -145, maxRel: 0 } : { minRel: 0, maxRel: 145 },
-    5: isRightFacing ? { minRel: -145, maxRel: 0 } : { minRel: 0, maxRel: 145 },
-
-    // Elbows (Nodes 10 & 13 relative to Biceps Nodes 9 & 12)
-    // Elbow flexes anteriorly.
-    10: isRightFacing ? { minRel: 0, maxRel: 145 } : { minRel: -145, maxRel: 0 },
-    13: isRightFacing ? { minRel: 0, maxRel: 145 } : { minRel: -145, maxRel: 0 },
-
-    // Lower Spine (Node 7 relative to Pelvis Node 0)
-    7: { minRel: -45, maxRel: 45 },
-
-    // Upper Chest (Node 8 relative to Lower Spine Node 7)
-    8: { minRel: -35, maxRel: 35 },
-
-    // Neck (Node 15 relative to Upper Chest Node 8)
-    15: { minRel: -30, maxRel: 30 },
-
-    // Head (Node 16 relative to Neck Node 15)
-    16: { minRel: -25, maxRel: 25 },
+    2: { minRel: -145, maxRel: 145 }, // Right knee hinge
+    5: { minRel: -145, maxRel: 145 }, // Left knee hinge
+    10: { minRel: -155, maxRel: 155 }, // Right elbow, not head
+    15: { minRel: -155, maxRel: 155 }, // Left elbow, not neck
+    7: { minRel: 40, maxRel: 140 },    // Lower spine: ~90° is upright
+    8: { minRel: -50, maxRel: 50 },    // Upper chest relative to lower spine
+    12: { minRel: -45, maxRel: 45 },   // Neck relative to upper chest
+    13: { minRel: -40, maxRel: 40 },   // Head relative to neck
   };
 }
 
 /**
- * Enforces biological joint constraints on a set of 17 bone world angles.
+ * Returns a corrected copy and diagnostics. Non-finite values are repaired
+ * deterministically so they cannot propagate NaN through forward kinematics.
  */
 export function enforceAnatomicalConstraints17(
   worldAnglesDeg: number[],
   parents: number[],
-  isRightFacing: boolean
+  isRightFacing: boolean,
 ): { constrainedAngles: number[]; violationsCount: number; report: string[] } {
+  if (worldAnglesDeg.length !== 17) throw new Error(`Expected 17 world angles; received ${worldAnglesDeg.length}.`);
+  if (parents.length !== 17) throw new Error(`Expected 17 parent indices; received ${parents.length}.`);
+
   const result = [...worldAnglesDeg];
   const limits = getAnatomicalJointLimits(isRightFacing);
   let violationsCount = 0;
   const report: string[] = [];
 
-  for (let i = 0; i < 17; i++) {
-    const limit = limits[i];
+  for (let i = 0; i < 17; i += 1) {
     const parentIdx = parents[i];
-
-    if (limit && parentIdx !== -1) {
-      const parentAngle = result[parentIdx];
-      let relAngle = result[i] - parentAngle;
-
-      // Wrap relative angle to [-180, 180]
-      relAngle = ((relAngle + 180) % 360) - 180;
-
-      if (relAngle < limit.minRel || relAngle > limit.maxRel) {
-        violationsCount++;
-        const clampedRel = Math.max(limit.minRel, Math.min(limit.maxRel, relAngle));
-        report.push(
-          `Joint ${i} violation: relAngle ${relAngle.toFixed(1)}° out of bounds [${limit.minRel}°, ${limit.maxRel}°]. Clamped to ${clampedRel.toFixed(1)}°.`
-        );
-        result[i] = parentAngle + clampedRel;
-      }
+    if (!Number.isFinite(result[i])) {
+      violationsCount += 1;
+      const replacement = parentIdx >= 0 && Number.isFinite(result[parentIdx]) ? result[parentIdx] : 0;
+      report.push(`Joint ${i} had a non-finite angle; replaced with ${replacement.toFixed(1)}°.`);
+      result[i] = replacement;
+    }
+    const limit = limits[i];
+    if (!limit || parentIdx < 0 || parentIdx >= 17) continue;
+    const parentAngle = result[parentIdx];
+    const relative = wrapSignedDegrees(result[i] - parentAngle);
+    if (relative < limit.minRel || relative > limit.maxRel) {
+      const clamped = Math.max(limit.minRel, Math.min(limit.maxRel, relative));
+      violationsCount += 1;
+      report.push(`Joint ${i} (${ANATOMICAL_JOINT_NAMES[i]}) relative angle ${relative.toFixed(1)}° outside [${limit.minRel}°, ${limit.maxRel}°]; clamped to ${clamped.toFixed(1)}°.`);
+      result[i] = parentAngle + clamped;
     }
   }
-
   return { constrainedAngles: result, violationsCount, report };
 }

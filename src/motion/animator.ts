@@ -8,6 +8,7 @@ import {
   applyAnimateOnTwos,
 } from './secondaryMotion';
 import { PHYSICS_CONFIG } from './config';
+import { enforceAnatomicalConstraints17 } from '../../skills/skeleton/AnatomicalConstraints';
 
 export interface ExpansionOptions {
   totalFrames?: number;
@@ -15,6 +16,35 @@ export interface ExpansionOptions {
   enableMovingHolds?: boolean;
   animateOnTwos?: boolean;
   defaultGroundY?: number;
+  /** Re-project joint limits and foot contacts after secondary motion. Defaults to true. */
+  enforceFinalConstraints?: boolean;
+}
+
+function enforceFinalPoseConstraints(frames: Pose17[], keyframes: SparseKeyframe17[], groundY: number): Pose17[] {
+  const parents = PHYSICS_CONFIG.skeleton.parents;
+  return frames.map((original, frameIndex) => {
+    const pose: Pose17 = { ...original, angles: [...original.angles] };
+    if (pose.angles.length !== 17) return pose;
+    pose.angles = enforceAnatomicalConstraints17(pose.angles, parents, pose.facingRight).constrainedAngles;
+    const contacts = (side: 'left' | 'right') => {
+      const field = side === 'left' ? 'leftFootContact' : 'rightFootContact';
+      let active: SparseKeyframe17 | undefined;
+      for (const kf of keyframes) if (kf.frame <= frameIndex && kf[field]) active = kf;
+      if (!active || !['PLANT', 'HEEL_STRIKE'].includes(active[field]!.state)) return null;
+      const c = active[field]!;
+      const offset = (side === 'right' ? 1 : -1) * (pose.facingRight ? 1 : -1) * 10;
+      return { x: c.pinWorldX ?? active.pose.rootX + offset, y: c.groundY ?? groundY };
+    };
+    const left = contacts('left');
+    const right = contacts('right');
+    if (left) pinFootToSurface(pose, 'left', left.x, left.y);
+    if (right) pinFootToSurface(pose, 'right', right.x, right.y);
+    let joints = computeForwardKinematics17(pose);
+    if (!left && joints[6].endY > groundY + 0.05) pinFootToSurface(pose, 'left', joints[6].endX, groundY);
+    joints = computeForwardKinematics17(pose);
+    if (!right && joints[3].endY > groundY + 0.05) pinFootToSurface(pose, 'right', joints[3].endX, groundY);
+    return pose;
+  });
 }
 
 /**
@@ -226,6 +256,6 @@ export function expandKeyframesToMotion(
   if (options.animateOnTwos) {
     processed = applyAnimateOnTwos(processed);
   }
-
+  if (options.enforceFinalConstraints ?? true) processed = enforceFinalPoseConstraints(processed, sorted, groundY);
   return processed;
 }

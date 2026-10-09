@@ -6,6 +6,12 @@ const requiredPresets = [
   'run_drive_r',
   'run_flight_r',
   'run_contact_l',
+  'run_drive_l',
+  'run_flight_l',
+  'block_high',
+  'block_low',
+  'fall_backward',
+  'land_crouch',
   'strike_punch_chamber',
   'strike_punch_extend',
   'strike_punch_recover',
@@ -35,7 +41,7 @@ const angleDelta = (a: number, b: number) => {
 const elbowBend = (pose: number[], upperArm: number, forearm: number) =>
   angleDelta(pose[upperArm], pose[forearm]);
 
-for (const name of ['run_contact_r', 'run_drive_r', 'run_flight_r', 'run_contact_l']) {
+for (const name of ['run_contact_r', 'run_drive_r', 'run_flight_r', 'run_contact_l', 'run_drive_l', 'run_flight_l']) {
   const pose = getPosePreset(name);
   assert.ok(elbowBend(pose, 9, 10) >= 45 && elbowBend(pose, 9, 10) <= 145,
     `${name} right elbow should stay visibly flexed`);

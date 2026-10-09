@@ -39,6 +39,8 @@ export interface IntentKeyframe {
   };
   easing?: EasingType;
   isMovingHold?: boolean;
+  /** Marks a deliberate hold/hit-stop for animation QA. */
+  intentionalHold?: boolean;
 }
 
 export interface CharacterIntent {

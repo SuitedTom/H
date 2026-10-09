@@ -9,23 +9,23 @@ import { solveForwardKinematics17, JointWorldPose } from '../ik/kinematicsSolver
  * Standard human segment mass distribution ratios (Winter/Dempster model). Total = 1.00
  */
 export const SEGMENT_MASS_WEIGHTS_17: number[] = [
-  0.22, // Node 0: Pelvis
-  0.10, // Node 1: Right Thigh
-  0.046,// Node 2: Right Shin
-  0.014,// Node 3: Right Foot
-  0.10, // Node 4: Left Thigh
-  0.046,// Node 5: Left Shin
-  0.014,// Node 6: Left Foot
-  0.16, // Node 7: Lower Spine
-  0.12, // Node 8: Upper Chest
-  0.028,// Node 9: Right Bicep
-  0.016,// Node 10: Right Forearm
-  0.006,// Node 11: Right Hand
-  0.028,// Node 12: Left Bicep
-  0.016,// Node 13: Left Forearm
-  0.006,// Node 14: Left Hand
-  0.025,// Node 15: Neck
-  0.055,// Node 16: Head
+  0.22,  // Node 0: Pelvis
+  0.10,  // Node 1: Right Thigh
+  0.046, // Node 2: Right Shin
+  0.014, // Node 3: Right Foot
+  0.10,  // Node 4: Left Thigh
+  0.046, // Node 5: Left Shin
+  0.014, // Node 6: Left Foot
+  0.16,  // Node 7: Lower Spine
+  0.12,  // Node 8: Upper Chest
+  0.028, // Node 9: Right Bicep
+  0.016, // Node 10: Right Forearm
+  0.006, // Node 11: Right Hand
+  0.025, // Node 12: Neck
+  0.055, // Node 13: Head
+  0.028, // Node 14: Left Bicep
+  0.016, // Node 15: Left Forearm
+  0.006, // Node 16: Left Hand
 ];
 
 export interface CenterOfMassResult {
