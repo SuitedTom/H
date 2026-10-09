@@ -54,7 +54,7 @@ for (const side of ['rightFoot', 'leftFoot'] as const) {
 }
 
 const leftWalk = makeWalk({ direction: 'left', startX: 600 });
-assert.ok(leftWalk.frames.at(-1)!.rootX < leftWalk.frames[0].rootX);
+assert.ok(leftWalk.frames[leftWalk.frames.length - 1].rootX < leftWalk.frames[0].rootX);
 assert.ok(leftWalk.frames.every((frame) => frame.angles.length === 17));
 
 assert.throws(() => generateContactAwareLocomotion({ frameCount: 0 }), /frameCount/);
